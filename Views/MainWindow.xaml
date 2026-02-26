@@ -1,0 +1,27 @@
+﻿<Window
+    x:Class="NotionDeadlineFairy.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:NotionDeadlineFairy"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:NotionDeadlineFairy.ViewModels"
+    Title="MainWindow"
+    Width="800"
+    Height="450"
+    d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
+    mc:Ignorable="d">
+    <Grid>
+        <WrapPanel>
+            <TextBlock Width="50" Text="{Binding Count}" />
+            <Button
+                Width="50"
+                Command="{Binding IncrementCommand}"
+                Content="+" />
+            <Button
+                Width="50"
+                Command="{Binding DecrementCommand}"
+                Content="-" />
+        </WrapPanel>
+    </Grid>
+</Window>
