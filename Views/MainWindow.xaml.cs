@@ -1,7 +1,7 @@
 ﻿using NotionDeadlineFairy.ViewModels;
 using System.Windows;
 
-namespace NotionDeadlineFairy
+namespace NotionDeadlineFairy.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

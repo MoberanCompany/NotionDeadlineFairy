@@ -1,9 +1,12 @@
 ﻿using NotionDeadlineFairy.Commands;
+using NotionDeadlineFairy.Services;
 
 namespace NotionDeadlineFairy.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
+        private readonly NotionService _notionService;
+
         private int _count = 0;
         public int Count 
         {
@@ -24,6 +27,8 @@ namespace NotionDeadlineFairy.ViewModels
 
         public MainViewModel()
         {
+            this._notionService = NotionService.Instance;
+
             IncrementCommand = new RelayCommand((arg) =>
             {
                 Count++;
@@ -33,6 +38,8 @@ namespace NotionDeadlineFairy.ViewModels
             {
                 Count--;
             });
+
+            var list = this._notionService.GetAllDatabaseItems();
         }
     }
 }
