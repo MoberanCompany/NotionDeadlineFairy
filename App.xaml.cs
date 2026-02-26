@@ -11,6 +11,7 @@ namespace NotionDeadlineFairy
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            SettingService.Instance.Load();
 
             _trayService = new TrayService();
             _trayService.Initialize(() => Shutdown());
@@ -18,6 +19,7 @@ namespace NotionDeadlineFairy
 
         protected override void OnExit(ExitEventArgs e)
         {
+            SettingService.Instance.Save();
             _trayService?.Dispose();
             _trayService = null;
             base.OnExit(e);
