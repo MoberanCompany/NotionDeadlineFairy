@@ -6,9 +6,13 @@ using Forms = System.Windows.Forms;
 
 namespace NotionDeadlineFairy.Services
 {
-    public class TrayService
+    public class TrayService 
     {
+        private DateTime _lastRefreshTime = DateTime.Now;
         private Forms.NotifyIcon? _trayIcon;
+
+        private CancellationTokenSource? _pollingCancellationTokenSource;
+        private Task? _pollingTask;
 
         private Forms.ToolStripMenuItem? _normalItem;
         private Forms.ToolStripMenuItem? _topmostItem;
@@ -65,22 +69,18 @@ namespace NotionDeadlineFairy.Services
             _poll1MinItem = new Forms.ToolStripMenuItem("1분", null, (_, _) =>
             {
                 SetPollingIntervalChecked(60);
-                // callbacks.OnPollingIntervalChanged(60);
             });
             _poll5MinItem = new Forms.ToolStripMenuItem("5분", null, (_, _) =>
             {
                 SetPollingIntervalChecked(300);
-                //callbacks.OnPollingIntervalChanged(300);
             });
             _poll10MinItem = new Forms.ToolStripMenuItem("10분", null, (_, _) =>
             {
                 SetPollingIntervalChecked(600);
-                // callbacks.OnPollingIntervalChanged(600);
             });
             _poll30MinItem = new Forms.ToolStripMenuItem("30분", null, (_, _) =>
             {
                 SetPollingIntervalChecked(1800);
-                // callbacks.OnPollingIntervalChanged(1800);
             });
             pollingMenu.DropDownItems.AddRange([_poll1MinItem, _poll5MinItem, _poll10MinItem, _poll30MinItem]);
             SetPollingIntervalChecked(setting.PollingIntervalSeconds);
@@ -138,6 +138,40 @@ namespace NotionDeadlineFairy.Services
                 Text = "NotionOverlayWidget",
                 ContextMenuStrip = trayMenu
             };
+
+
+            // 폴링 작업 시작
+            _pollingCancellationTokenSource = new CancellationTokenSource();
+            _pollingTask = StartPollingAsync(setting, _pollingCancellationTokenSource.Token);
+        }
+
+        private async Task StartPollingAsync(dynamic setting, CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Delay(1000, cancellationToken);
+                    var now = DateTime.Now;
+                    if ((now - _lastRefreshTime).TotalSeconds >= setting.PollingIntervalSeconds)
+                    {
+                        try
+                        {
+                            var widgets = ServiceLocator.Instance.GetService<IWidget>();
+                            widgets?.ForEach(w => w.Refresh());
+                        }
+                        catch
+                        {
+                            // 새로고침 중 예외가 발생해도 무시
+                        }
+                        _lastRefreshTime = now;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+            }
         }
 
         private void SetWindowModeChecked(WindowMode mode)
@@ -218,11 +252,20 @@ namespace NotionDeadlineFairy.Services
 
         public void Dispose()
         {
-            if (_trayIcon is null)
+            // 폴링 작업 취소
+            _pollingCancellationTokenSource?.Cancel();
+            try
             {
-                return;
+                _pollingTask?.Wait(TimeSpan.FromSeconds(5));
             }
+            catch (AggregateException)
+            {
+                // 취소 예외 무시
+            }
+            _pollingCancellationTokenSource?.Dispose();
 
+            // 트레이 아이콘 정리
+            if (_trayIcon is null) return;
             _trayIcon.Visible = false;
             _trayIcon.Dispose();
             _trayIcon = null;
