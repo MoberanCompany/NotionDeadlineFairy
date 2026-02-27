@@ -1,7 +1,6 @@
 using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Services;
-using System.Threading.Tasks;
 
 namespace NotionDeadlineFairy.ViewModels
 {
