@@ -81,14 +81,13 @@ namespace NotionDeadlineFairy
 
             var setting = SettingService.Instance.Current;
 
-            //ApplyTheme(setting.BackgroundColor, setting.ForegroundColor, setting.FontSize, setting.FontFamily);
+            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor, setting.FontSize, setting.FontFamily);
             //ApplyWindowMode(setting.WindowMode);
 
             _trayService = new TrayService();
             _trayService.Initialize();
 
             
-            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor);
             ApplyEditMode(setting.IsEditMode);
 
             PollingService.Instance.Start(setting.PollingIntervalSeconds);
@@ -117,18 +116,32 @@ namespace NotionDeadlineFairy
             _hwndSource.AddHook(WndProc);
         }
 
-        private void OnThemeChanged(string backgroundColorCode, string foregroundColorCode)
+
+
+        private void ApplyTheme(string backgroundColorCode, string foregroundColorCode, double FontSize, string FontStyle)
         {
-            SettingService.Instance.Current.BackgroundColor = backgroundColorCode;
-            SettingService.Instance.Current.ForegroundColor = foregroundColorCode;
-            SettingService.Instance.Save();
-            ApplyTheme(backgroundColorCode, foregroundColorCode);
-        }
+            System.Windows.Media.FontFamily font;
 
+            try
+            {
+                font = new System.Windows.Media.FontFamily(FontStyle);
 
-        private void ApplyTheme(string backgroundColorCode, string foregroundColorCode)
-        {
-
+                if (string.IsNullOrEmpty(font.Source))
+                {
+                    font = new System.Windows.Media.FontFamily("Arial");
+                }
+            }
+            catch (Exception)
+            {
+                font = new System.Windows.Media.FontFamily("Arial");
+            }
+            if(_mainWindow != null && _mainWindow.DataContext is MainViewModel vm)
+            {
+                vm.BackgroundColor = backgroundColorCode;
+                vm.ForegroundColor = foregroundColorCode;
+                vm.FontSize = FontSize;
+                vm.SelectedFontFamily = font;
+            }
         }
 
         private void OnWindowModeChanged(WindowMode mode)

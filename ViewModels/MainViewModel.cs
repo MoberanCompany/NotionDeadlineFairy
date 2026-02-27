@@ -89,7 +89,7 @@ namespace NotionDeadlineFairy.ViewModels
             get => _fontSize;
             set { _fontSize = value; OnPropertyChanged(); EnabledSave = ValidateInput(); }
         }
-        private System.Windows.Media.FontFamily _selectedFontFamily = new System.Windows.Media.FontFamily("Segoe UI");
+        private System.Windows.Media.FontFamily _selectedFontFamily = new System.Windows.Media.FontFamily("Arial");
         public System.Windows.Media.FontFamily SelectedFontFamily
         {
             get => _selectedFontFamily;
