@@ -26,17 +26,17 @@ namespace NotionDeadlineFairy.ViewModels
         }
 
 
-        private string _apiKey = "";
-        public string ApiKey {
+        private string _apiToken = "";
+        public string ApiToken {
             get
             {
-                return this._apiKey;
+                return this._apiToken;
             }
             set
             {
-                if(this._apiKey != value)
+                if(this._apiToken != value)
                 {
-                    this._apiKey = value;
+                    this._apiToken = value;
                     OnPropertyChanged();
                 }
             }
@@ -156,7 +156,7 @@ namespace NotionDeadlineFairy.ViewModels
         {
             return new NotionConfig()
             {
-                ApiToken = vm.ApiKey,
+                ApiToken = vm.ApiToken,
                 DatabaseUrl = vm.DatabaseUrl,
                 Name = vm.Name,
                 EndDatePropertyName = vm.EndDatePropertyName,
@@ -170,7 +170,7 @@ namespace NotionDeadlineFairy.ViewModels
         {
             return new NotionDatabaseSettingItemViewModel()
             {
-                ApiKey = config.ApiToken,
+                ApiToken = config.ApiToken,
                 DatabaseUrl = config.DatabaseUrl,
                 Name = config.Name,
                 EndDatePropertyName = config.EndDatePropertyName,
