@@ -36,6 +36,12 @@ namespace NotionDeadlineFairy.ViewModels
                 }
             }
         }
+        private bool _isSettingsVisible = false;
+        public bool IsSettingsVisible
+        {
+            get => _isSettingsVisible;
+            set { _isSettingsVisible = value; OnPropertyChanged(); }
+        }
         private double _width = 350;
         private double _height = 500;
         private double _left = 300;

@@ -34,7 +34,7 @@ namespace NotionDeadlineFairy.Views
                 this.DragMove();
 
 
-                if (this.DataContext is WindowControlWindowViewModel vm)
+                if (this.DataContext is MainViewModel vm)
                 {
                     vm.Left = this.Left;
                     vm.Top = this.Top;
