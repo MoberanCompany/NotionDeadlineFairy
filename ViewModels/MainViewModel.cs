@@ -119,7 +119,7 @@ namespace NotionDeadlineFairy.ViewModels
 
             if (settings == null || settings.DatabaseConfigs.Count == 0)
             {
-                TaskList = new ObservableCollection<TaskItemViewModel>();
+                TaskList.Clear();
                 return;
             }
 
@@ -129,14 +129,14 @@ namespace NotionDeadlineFairy.ViewModels
 
                 DispatcherHelper.BeginInvoke(() =>
                 {
+                    TaskList.Clear();
                     if (rawData != null && rawData.Any())
                     {
                         var vms = rawData.Select(d => new TaskItemViewModel(d));
-                        TaskList = new ObservableCollection<TaskItemViewModel>(vms);
-                    }
-                    else
-                    {
-                        TaskList = new ObservableCollection<TaskItemViewModel>();
+                        foreach(var vm in vms)
+                        {
+                            TaskList.Add(vm);
+                        }
                     }
                 });
             });
