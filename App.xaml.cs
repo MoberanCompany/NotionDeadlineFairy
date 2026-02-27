@@ -46,6 +46,7 @@ namespace NotionDeadlineFairy
             ApplyTheme(setting.BackgroundColor, setting.ForegroundColor);
             ApplyEditMode(setting.IsEditMode);
             ThemeService.Instance.ThemeChanged += OnThemeChanged;
+            PollingService.Instance.Start(setting.PollingIntervalSeconds);
         }
 
         private void OnThemeChanged(string backgroundColorCode, string foregroundColorCode)
@@ -119,6 +120,7 @@ namespace NotionDeadlineFairy
         {
             SettingService.Instance.Current.PollingIntervalSeconds = seconds;
             SettingService.Instance.Save();
+            PollingService.Instance.UpdateInterval(seconds);
         }
 
         private void OnEditModeChanged(bool enabled)
@@ -168,6 +170,7 @@ namespace NotionDeadlineFairy
 
         protected override void OnExit(ExitEventArgs e)
         {
+            PollingService.Instance.Stop();
             SettingService.Instance.Save();
             _trayService?.Dispose();
             _trayService = null;
