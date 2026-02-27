@@ -61,7 +61,9 @@ namespace NotionDeadlineFairy.ViewModels
 
         public void Refresh()
         {
-            // TODO
+            // TODO: 内靛 备泅
+            // throw new NotImplementedException();
+            _ = InitializeAsync();
         }
 
         public void SetEditMode(bool enabled)
@@ -71,8 +73,8 @@ namespace NotionDeadlineFairy.ViewModels
 
         public void SetClickThrough(bool enabled)
         {
-            throw new NotImplementedException();
-            _ = InitializeAsync();
+            // TODO: 内靛 备泅
+            // throw new NotImplementedException();
         }
 
         private async Task InitializeAsync()
