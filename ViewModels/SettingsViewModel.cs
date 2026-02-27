@@ -16,6 +16,7 @@ namespace NotionDeadlineFairy.ViewModels
         public RelayCommand TestFetchCommand { get; }
         public RelayCommand AddConfigCommand { get; }
         public RelayCommand RemoveConfigCommand { get; }
+        public RelayCommand EditTextFilterCommand { get; }
 
         public SettingsViewModel()
         {
@@ -61,6 +62,47 @@ namespace NotionDeadlineFairy.ViewModels
                     var config = item.GetConfig();
                     try
                     {
+                        item.ResultMessage = "Validating..";
+
+                        var properties = notionApi.GetDatabaseProperties(config);
+                        if (!string.IsNullOrWhiteSpace(config.EndDatePropertyName))
+                        {
+                            var endDateProperty = properties.FirstOrDefault(x =>
+                                string.Equals(x.Name, config.EndDatePropertyName, StringComparison.OrdinalIgnoreCase));
+
+                            if (endDateProperty == null)
+                            {
+                                item.IsConnected = false;
+                                item.ResultMessage = "EndDate Property Not Found";
+                                return;
+                            }
+
+                            if (!string.Equals(endDateProperty.Type, "date", StringComparison.OrdinalIgnoreCase))
+                            {
+                                item.IsConnected = false;
+                                item.ResultMessage = $"EndDate Property Type Invalid ({endDateProperty.Type})";
+                                return;
+                            }
+                        }
+
+                        var showingProperties = config.ShowingProperties
+                            .Where(x => !string.IsNullOrWhiteSpace(x))
+                            .Select(x => x.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+
+                        var invalidShowingProperties = showingProperties
+                            .Where(showingProperty => !properties.Any(property =>
+                                string.Equals(property.Name, showingProperty, StringComparison.OrdinalIgnoreCase)))
+                            .ToList();
+
+                        if (invalidShowingProperties.Count > 0)
+                        {
+                            item.IsConnected = false;
+                            item.ResultMessage = $"ShowingProperties Not Found: {string.Join(", ", invalidShowingProperties)}";
+                            return;
+                        }
+
                         item.ResultMessage = "Fetching..";
 
                         var result = notionApi.GetDatabaseItems(config);
@@ -103,6 +145,11 @@ namespace NotionDeadlineFairy.ViewModels
                 var current = SettingService.Instance.Current;
                 current.DatabaseConfigs = DatabaseConfigs.Select(x => x.GetConfig()).ToList();
                 SettingService.Instance.Save();
+            });
+
+            EditTextFilterCommand = new RelayCommand(_ =>
+            {
+                // TODO 필터 편집 팝업
             });
         }
     }
