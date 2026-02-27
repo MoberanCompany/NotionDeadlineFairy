@@ -53,7 +53,6 @@ namespace NotionDeadlineFairy
         #endregion
 
         private HwndSourceHook? _clickThroughHook;
-        private bool _isClickThrough;
 
         private WindowState _lastNonMinimized = WindowState.Normal;
         private bool _restoring;
@@ -88,7 +87,7 @@ namespace NotionDeadlineFairy
             _trayService.Initialize();
 
             
-            ApplyEditMode(setting.IsEditMode);
+            //ApplyEditMode(setting.IsEditMode);
 
             PollingService.Instance.Start(setting.PollingIntervalSeconds);
         }
@@ -204,28 +203,6 @@ namespace NotionDeadlineFairy
             }
         }
 
-
-        private void OnEditModeChanged(bool enabled)
-        {
-            SettingService.Instance.Current.IsEditMode = enabled;
-            SettingService.Instance.Save();
-            //ApplyEditMode(enabled);
-        }
-
-        private void ApplyEditMode(bool enabled)
-        {
-            if (_mainWindow is null) return;
-            if(_mainWindow.DataContext is MainViewModel vm)
-            {
-                vm.IsEditMode = enabled;
-            }
-        }
-
-        private void OnRefreshRequested()
-        {
-            // TODO: 데이터 새로고침 로직 구현
-        }
-
         #region INavigation
         public void OpenDatabaseEdit()
         {
@@ -270,7 +247,6 @@ namespace NotionDeadlineFairy
 
         public void SetClickThrough(bool enable)
         {
-            _isClickThrough = enable;
             _mainWindow.IsHitTestVisible = !enable;
             ApplyClickThroughStyle(enable);
         }

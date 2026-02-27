@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Models;
+using System.IO;
 using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
 
@@ -127,11 +128,30 @@ namespace NotionDeadlineFairy.Services
 
             _trayIcon = new Forms.NotifyIcon
             {
-                Icon = Drawing.SystemIcons.Application,
+                Icon = GetApplicationIcon(),
                 Visible = true,
                 Text = "NotionOverlayWidget",
                 ContextMenuStrip = trayMenu
             };
+        }
+
+        private Drawing.Icon GetApplicationIcon()
+        {
+            try
+            {
+                // 실행 중인 애플리케이션의 아이콘 추출
+                var exePath = Environment.ProcessPath;
+                if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
+                {
+                    return Drawing.Icon.ExtractAssociatedIcon(exePath) ?? Drawing.SystemIcons.Application;
+                }
+            }
+            catch
+            {
+                // 아이콘 로드 실패 시 기본 아이콘 사용
+            }
+
+            return Drawing.SystemIcons.Application;
         }
 
         private async Task StartPollingAsync(dynamic setting, CancellationToken cancellationToken)
