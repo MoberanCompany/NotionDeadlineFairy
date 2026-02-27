@@ -3,6 +3,10 @@ using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Services;
 using System.Text.RegularExpressions;
 
+using System.Windows.Media; // FontFamily 사용을 위해 필요
+using System.Collections.Generic;
+using System.Linq;
+
 namespace NotionDeadlineFairy.ViewModels
 {
     public class MainViewModel : BaseViewModel, IWidget
@@ -71,13 +75,27 @@ namespace NotionDeadlineFairy.ViewModels
 
         private string _backgroundColor = "#FFFFFFFF";
         private string _foregroundColor = "#000000FF";
-        public string BackgroundColor { get => _backgroundColor; set { if (_backgroundColor == value) return;  _backgroundColor = value; OnPropertyChanged(); EnabledSave = ValidateColor(value) && ValidateColor(ForegroundColor); } }
-        public string ForegroundColor { get => _foregroundColor; set { if (_foregroundColor == value) return;  _foregroundColor = value; OnPropertyChanged(); EnabledSave = ValidateColor(value) && ValidateColor(BackgroundColor); } }
+        public string BackgroundColor { get => _backgroundColor; set { if (_backgroundColor == value) return;  _backgroundColor = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
+        public string ForegroundColor { get => _foregroundColor; set { if (_foregroundColor == value) return;  _foregroundColor = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
         private bool _enabledSave = false;
         public bool EnabledSave { get => _enabledSave; set { if (_enabledSave == value) return; _enabledSave = value; OnPropertyChanged(); } }
 
         public RelayCommand IncrementCommand { get; }
         public RelayCommand DecrementCommand { get; }
+
+        public IReadOnlyList<System.Windows.Media.FontFamily> SystemFonts { get; } = Fonts.SystemFontFamilies.OrderBy(f => f.Source).ToList();
+        private double _fontSize = 12;
+        public double FontSize
+        {
+            get => _fontSize;
+            set { _fontSize = value; OnPropertyChanged(); EnabledSave = ValidateInput(); }
+        }
+        private System.Windows.Media.FontFamily _selectedFontFamily = new System.Windows.Media.FontFamily("Segoe UI");
+        public System.Windows.Media.FontFamily SelectedFontFamily
+        {
+            get => _selectedFontFamily;
+            set { _selectedFontFamily = value; OnPropertyChanged(); EnabledSave = ValidateInput(); }
+        }
 
         public MainViewModel()
         {
@@ -104,6 +122,8 @@ namespace NotionDeadlineFairy.ViewModels
             this.Top = settings.WindowTop;
             this.BackgroundColor = settings.BackgroundColor;
             this.ForegroundColor = settings.ForegroundColor;
+            this.FontSize = settings.FontSize;
+            this.SelectedFontFamily = new System.Windows.Media.FontFamily(settings.FontFamily);
         }
 
         public void Refresh()
@@ -151,13 +171,30 @@ namespace NotionDeadlineFairy.ViewModels
             return Regex.IsMatch(hex, hexPattern);
         }
 
+        private bool ValidateFontSize(double size)
+        {
+            return size >= 8 && size <= 100;
+        }
 
-        public void SaveCurrentColor()
+        private bool ValidateFontFamily(System.Windows.Media.FontFamily family)
+        {
+            return family != null && !string.IsNullOrWhiteSpace(family.Source);
+        }
+
+        private bool ValidateInput()
+        {
+            return ValidateColor(BackgroundColor) && ValidateColor(ForegroundColor) && ValidateFontSize(FontSize) && ValidateFontFamily(SelectedFontFamily);
+        }
+
+
+        public void SaveThemeSettings()
         {
             var settings = SettingService.Instance.Current;
 
             settings.BackgroundColor = this.BackgroundColor;
             settings.ForegroundColor = this.ForegroundColor;
+            settings.FontSize = this.FontSize;
+            settings.FontFamily = this.SelectedFontFamily.Source;
 
             SettingService.Instance.Save();
         }
