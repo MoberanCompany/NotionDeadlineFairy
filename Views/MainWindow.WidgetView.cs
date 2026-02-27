@@ -93,7 +93,6 @@ namespace NotionDeadlineFairy.Views
 
         public void SetEditMode(bool enabled)
         {
-            throw new NotImplementedException();
         }
     }
 }

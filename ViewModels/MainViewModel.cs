@@ -23,6 +23,20 @@ namespace NotionDeadlineFairy.ViewModels
             }
         }
 
+        private bool _isEditMode;
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set
+            {
+                if (_isEditMode != value)
+                {
+                    _isEditMode = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public RelayCommand IncrementCommand { get; }
         public RelayCommand DecrementCommand { get; }
 
@@ -47,18 +61,20 @@ namespace NotionDeadlineFairy.ViewModels
 
         public void Refresh()
         {
-            // TODO
+            // TODO: 内靛 备泅
+            // throw new NotImplementedException();
+            _ = InitializeAsync();
         }
 
         public void SetEditMode(bool enabled)
         {
-            throw new NotImplementedException();
+            this.IsEditMode = enabled;
         }
 
         public void SetClickThrough(bool enabled)
         {
-            throw new NotImplementedException();
-            _ = InitializeAsync();
+            // TODO: 内靛 备泅
+            // throw new NotImplementedException();
         }
 
         private async Task InitializeAsync()
