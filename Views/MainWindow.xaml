@@ -18,11 +18,73 @@
     Top="{Binding Top, Mode=TwoWay}"
     Left="{Binding Left, Mode=TwoWay}"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
-    mc:Ignorable="d"
-    >
+    mc:Ignorable="d">
+
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#3D3D3D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="5">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FF4A90E2"/>
+                                <Setter TargetName="border" Property="BorderThickness" Value="1.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#FF4A90E2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#FF357ABD"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#555555"/>
+                                <Setter Property="Foreground" Value="#888888"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
+
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="0" 
                       GlassFrameThickness="1" 
@@ -30,6 +92,7 @@
                       ResizeBorderThickness="5"
                       UseAeroCaptionButtons="False"  />
     </WindowChrome.WindowChrome>
+
     <Window.Style>
         <Style TargetType="Window">
             <Setter Property="ResizeMode" Value="NoResize" />
@@ -40,48 +103,79 @@
             </Style.Triggers>
         </Style>
     </Window.Style>
+
     <Grid>
         <ContentControl x:Name="MainContentFrame" />
+
         <Grid x:Name="OverlayLayer"
-           Background="#50000000" 
-         Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
+              Background="#50000000" 
+              Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
+
             <Grid x:Name="SettingsModal" 
-      Background="#AA000000" 
-      Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVisibility}}">
-                <Border Background="#2D2D2D" CornerRadius="10" Width="200" Padding="15" VerticalAlignment="Center">
+                  Background="#AA000000" 
+                  Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVisibility}}">
+                <Border Background="#252525" CornerRadius="12" Width="240" Padding="20" VerticalAlignment="Center">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.5"/>
+                    </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="배경색 (Hex)" Foreground="White" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15"/>
+                        <TextBlock Text="🎨 UI 설정" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,0,0,15" HorizontalAlignment="Center"/>
 
-                        <TextBlock Text="글자색 (Hex)" Foreground="White" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15"/>
+                        <TextBlock Text="배경색 (Hex)" Foreground="#AAAAAA" FontSize="11" Margin="2,0,0,4"/>
+                        <TextBox Style="{StaticResource ModernTextBox}" 
+                                 Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" 
+                                 Margin="0,0,0,12"/>
 
-                        <Button Content="저장" IsEnabled="{Binding EnabledSave}" Click="SaveColor_Click" />
-                        <Button Content="닫기" Click="CloseSettings_Click"></Button>
+                        <TextBlock Text="글자색 (Hex)" Foreground="#AAAAAA" FontSize="11" Margin="2,0,0,4"/>
+                        <TextBox Style="{StaticResource ModernTextBox}" 
+                                 Text="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}" 
+                                 Margin="0,0,0,20"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Content="저장" 
+                                    IsEnabled="{Binding EnabledSave}" 
+                                    Style="{StaticResource ModernButton}" 
+                                    Click="SaveColor_Click" 
+                                    Margin="0,0,5,0"
+                                    Grid.Column="0"/>
+
+                            <Button Content="닫기" 
+                                    Style="{StaticResource ModernButton}" 
+                                    Background="#444444"
+                                    Click="CloseSettings_Click" 
+                                    Margin="5,0,0,0"
+                                    Grid.Column="1"/>
+                        </Grid>
                     </StackPanel>
                 </Border>
             </Grid>
 
             <StackPanel HorizontalAlignment="Right" 
-             VerticalAlignment="Top" 
-             Margin="15" 
-             Orientation="Horizontal">
+                         VerticalAlignment="Top" 
+                         Margin="15" 
+                         Orientation="Horizontal">
                 <Border x:Name="DragHandle"
-             Width="40" Height="40"
-             Background="#FF4A90E2"
-             CornerRadius="5"
-             Cursor="SizeAll"
-             MouseLeftButtonDown="DragHandle_MouseLeftButtonDown"
-             ToolTip="드래그하여 이동">
+                        Width="40" Height="40"
+                        Background="#FF4A90E2"
+                        CornerRadius="5"
+                        Cursor="SizeAll"
+                        MouseLeftButtonDown="DragHandle_MouseLeftButtonDown"
+                        ToolTip="드래그하여 이동">
                     <TextBlock Text="✥" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
                 </Border>
+
                 <Border x:Name="FinishButton"
-             Width="40" Height="40"
-             Background="#FF2ECC71"
-             CornerRadius="5"
-             Margin="10,0,0,0"
-             Cursor="Hand"
-             ToolTip="UI 설정 메뉴"
+                        Width="40" Height="40"
+                        Background="#FF2ECC71"
+                        CornerRadius="5"
+                        Margin="10,0,0,0"
+                        Cursor="Hand"
+                        ToolTip="UI 설정 메뉴"
                         MouseLeftButtonDown="OpenSettings_Click">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>
@@ -91,13 +185,13 @@
                 </Border>
             </StackPanel>
 
-            <TextBlock Text="편집 모드" 
-            Foreground="White" 
-            Opacity="0.7"
-            HorizontalAlignment="Center" 
-            VerticalAlignment="Bottom" 
-            Margin="0,0,0,20"
-            IsHitTestVisible="False"/>
+            <TextBlock Text="편집 모드 활성화" 
+                        Foreground="White" 
+                        Opacity="0.7"
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Bottom" 
+                        Margin="0,0,0,20"
+                        IsHitTestVisible="False"/>
         </Grid>
     </Grid>
 </Window>
