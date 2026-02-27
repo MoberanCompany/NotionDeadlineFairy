@@ -79,6 +79,11 @@ namespace NotionDeadlineFairy
             _mainWindow.StateChanged += _mainWindow_StateChanged;
             _mainWindow.Show();
 
+            var setting = SettingService.Instance.Current;
+
+            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor, setting.FontSize, setting.FontFamily);
+            ApplyWindowMode(setting.WindowMode);
+
             _trayService = new TrayService();
             _trayService.Initialize();
 
@@ -86,7 +91,7 @@ namespace NotionDeadlineFairy
 
             ApplyTheme(setting.BackgroundColor, setting.ForegroundColor);
             ApplyEditMode(setting.IsEditMode);
-            ThemeService.Instance.ThemeChanged += OnThemeChanged;
+
             PollingService.Instance.Start(setting.PollingIntervalSeconds);
         }
 

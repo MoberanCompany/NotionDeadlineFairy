@@ -15,5 +15,11 @@ namespace NotionDeadlineFairy.Views
         {
             ResizeMode = enabled ? ResizeMode.CanResizeWithGrip : ResizeMode.NoResize;
         }
+
+        public void ReDraw()    
+        {
+            // TODO
+            throw new NotImplementedException();
+        }
     }
 }
