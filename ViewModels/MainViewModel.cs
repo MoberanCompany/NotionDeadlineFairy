@@ -1,6 +1,11 @@
-﻿using NotionDeadlineFairy.Abstractions;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Services;
+using NotionDeadlineFairy.Models;
+using Microsoft.VisualBasic.Logging;
 
 namespace NotionDeadlineFairy.ViewModels
 {
@@ -8,56 +13,52 @@ namespace NotionDeadlineFairy.ViewModels
     {
         private readonly NotionService _notionService;
 
-        private int _count = 0;
-        public int Count 
+        private ObservableCollection<TaskItemViewModel> _taskList;
+        public ObservableCollection<TaskItemViewModel> TaskList
         {
-            get => _count;
-            set
-            {
-                if(this._count != value)
-                {
-                    this._count = value;
-                    OnPropertyChanged();
-                }
-            }
+            get => _taskList;
+            set { _taskList = value; OnPropertyChanged(); }
         }
-
-
-        public RelayCommand IncrementCommand { get; }
-        public RelayCommand DecrementCommand { get; }
 
         public MainViewModel()
         {
-            this._notionService = NotionService.Instance;
-
-            IncrementCommand = new RelayCommand((arg) =>
-            {
-                Count++;
-            });
-
-            DecrementCommand = new RelayCommand((arg) =>
-            {
-                Count--;
-            });
+            _notionService = NotionService.Instance;
+            TaskList = new ObservableCollection<TaskItemViewModel>();
 
             Refresh();
-
+            
             ServiceLocator.Instance.Register<IWidget>(this);
         }
 
         public void Refresh()
         {
-            throw new NotImplementedException();
-        }
+            var settings = SettingService.Instance.Current;
 
-        public void SetEditMode(bool enabled)
-        {
-            throw new NotImplementedException();
+            if (settings == null || settings.DatabaseConfigs.Count == 0)
+            {
+                TaskList = new ObservableCollection<TaskItemViewModel>();
+                return;
+            }
+
+            var rawData = _notionService.GetAllDatabaseItems();
+
+            if (rawData != null && rawData.Any())
+            {
+                var vms = rawData.Select(d => new TaskItemViewModel(d));
+                TaskList = new ObservableCollection<TaskItemViewModel>(vms);
+            }
+            else
+            {
+                TaskList = new ObservableCollection<TaskItemViewModel>();
+            }
         }
 
         public void SetClickThrough(bool enabled)
         {
-            throw new NotImplementedException();
+        }
+
+        public void SetEditMode(bool enabled)
+        {
         }
     }
 }

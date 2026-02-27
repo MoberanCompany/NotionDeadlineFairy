@@ -88,12 +88,14 @@ namespace NotionDeadlineFairy.Views
 
         public void Refresh()
         {
-            throw new NotImplementedException();
+            if (this.DataContext is MainViewModel vm)
+            {
+                vm.Refresh();
+            }
         }
 
         public void SetEditMode(bool enabled)
         {
-            throw new NotImplementedException();
         }
     }
 }

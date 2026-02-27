@@ -1,0 +1,68 @@
+﻿<UserControl x:Class="NotionDeadlineFairy.Views.TaskCardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:conv="clr-namespace:NotionDeadlineFairy.Converters"
+             mc:Ignorable="d" d:DesignWidth="300">
+
+    <UserControl.Resources>
+        <conv:DeadlineToStyleConverter x:Key="DeadlineStyleConv"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <DropShadowEffect x:Key="CardShadow" BlurRadius="6" ShadowDepth="1" Opacity="0.1" Color="Black"/>
+    </UserControl.Resources>
+
+    <Border x:Name="MainBorder" Margin="4,2" CornerRadius="8" Padding="10,8" BorderThickness="1" Effect="{StaticResource CardShadow}">
+        <Border.Background>
+            <SolidColorBrush Color="White" Opacity="0.95"/>
+        </Border.Background>
+        <Border.BorderBrush>
+            <SolidColorBrush Color="#EAEAEA"/>
+        </Border.BorderBrush>
+
+        <StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="{Binding Title}" 
+                           FontSize="13" FontWeight="Bold" Foreground="#333333"
+                           TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,0,0,4"/>
+
+                <Border Grid.Row="1" Background="#F8F9FA" CornerRadius="4" Padding="6,4"
+                        Visibility="{Binding HasDeadline, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="⏰" Margin="0,0,6,0" VerticalAlignment="Center" FontSize="11"/>
+                        <TextBlock x:Name="TimerDisplay" FontFamily="Consolas" FontWeight="ExtraBold"
+                                   Text="{Binding RemainingTimeText}" 
+                                   Foreground="{Binding EndAt, Converter={StaticResource DeadlineStyleConv}, ConverterParameter=Color}"
+                                   FontSize="{Binding EndAt, Converter={StaticResource DeadlineStyleConv}, ConverterParameter=Size}"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Grid.Row="2" Text="{Binding DatabaseTitle}" FontSize="8" Foreground="#BBBBBB" 
+                           HorizontalAlignment="Right" Margin="0,4,2,0"/>
+            </Grid>
+
+            <Border x:Name="DetailPanel" Visibility="Collapsed" Margin="0,10,0,0" Padding="0,8,0,0" BorderThickness="0,1,0,0" BorderBrush="#EEE">
+                <ItemsControl ItemsSource="{Binding Values}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Key}" FontSize="10" Foreground="#888" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Value.Value}" FontSize="10" Foreground="#444" TextAlignment="Right" TextWrapping="Wrap"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </StackPanel>
+    </Border>
+</UserControl>
