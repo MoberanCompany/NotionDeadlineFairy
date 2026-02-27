@@ -13,7 +13,7 @@ namespace NotionDeadlineFairy.Services
 {
     public class NotionApi
     {
-        private const string NotionVersion = "2022-06-28";
+        private const string NotionVersion = "2025-09-03";
         private static readonly HttpClient _httpClient = new()
         {
             BaseAddress = new Uri("https://api.notion.com/v1/")
@@ -41,10 +41,10 @@ namespace NotionDeadlineFairy.Services
                 throw new ArgumentException("Notion API token is required.", nameof(config));
             }
 
-            var databaseId = ParseDatabaseId(config.DatabaseUrl);
-            if (string.IsNullOrWhiteSpace(databaseId))
+            var metadata = await GetDatabaseMetadataAsync(config).ConfigureAwait(false);
+            if (string.IsNullOrWhiteSpace(metadata.DataSourceId))
             {
-                throw new ArgumentException("Invalid Notion database URL.", nameof(config));
+                throw new InvalidOperationException("No accessible data source found for this database.");
             }
 
             var items = new List<NotionPageData>();
@@ -55,10 +55,11 @@ namespace NotionDeadlineFairy.Services
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             var useShowingPropertiesFilter = allowedProperties.Count > 0;
-            var metadata = await GetDatabaseMetadataAsync(config).ConfigureAwait(false);
             var databaseTitle = string.IsNullOrWhiteSpace(metadata.Title)
                 ? (config.Name ?? string.Empty)
                 : metadata.Title;
+
+            // EndDate 필드 항목이 실제로 있는지 확인. 없는 필드로 정렬 요청시 오류 발생
             var canSortByEndDateProperty = !string.IsNullOrWhiteSpace(config.EndDatePropertyName) &&
                 metadata.Properties.Any(x =>
                     string.Equals(x.Name, config.EndDatePropertyName, StringComparison.OrdinalIgnoreCase));
@@ -87,7 +88,7 @@ namespace NotionDeadlineFairy.Services
                     ? "{}"
                     : JsonSerializer.Serialize(requestPayload);
 
-                using var request = new HttpRequestMessage(HttpMethod.Post, $"databases/{databaseId}/query");
+                using var request = new HttpRequestMessage(HttpMethod.Post, $"data_sources/{metadata.DataSourceId}/query");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", config.ApiToken);
                 request.Headers.Add("Notion-Version", NotionVersion);
                 request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
@@ -189,29 +190,93 @@ namespace NotionDeadlineFairy.Services
             var root = doc.RootElement;
 
             var title = ExtractRichText(root, "title");
-            var properties = new List<NotionDatabaseProperty>();
-            if (root.TryGetProperty("properties", out var propertiesElement) &&
-                propertiesElement.ValueKind == JsonValueKind.Object)
-            {
-                foreach (var property in propertiesElement.EnumerateObject())
-                {
-                    var type = property.Value.TryGetProperty("type", out var typeElement)
-                        ? typeElement.GetString() ?? string.Empty
-                        : string.Empty;
+            var dataSourceId = string.Empty;
+            var dataSourceName = string.Empty;
 
-                    properties.Add(new NotionDatabaseProperty
+            if (root.TryGetProperty("data_sources", out var dataSourcesElement) &&
+                dataSourcesElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var sourceElement in dataSourcesElement.EnumerateArray())
+                {
+                    if (!sourceElement.TryGetProperty("id", out var idElement))
                     {
-                        Name = property.Name,
-                        Type = type,
-                    });
+                        continue;
+                    }
+
+                    var id = idElement.GetString();
+                    if (string.IsNullOrWhiteSpace(id))
+                    {
+                        continue;
+                    }
+
+                    dataSourceId = id;
+                    dataSourceName = sourceElement.TryGetProperty("name", out var nameElement)
+                        ? (nameElement.GetString() ?? string.Empty)
+                        : string.Empty;
+                    break;
                 }
+            }
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                title = dataSourceName;
+            }
+
+            var properties = new List<NotionDatabaseProperty>();
+            if (!string.IsNullOrWhiteSpace(dataSourceId))
+            {
+                properties = await GetDataSourcePropertiesAsync(config.ApiToken, dataSourceId).ConfigureAwait(false);
             }
 
             return new NotionDatabaseMetadata
             {
                 Title = title,
+                DataSourceId = dataSourceId,
                 Properties = properties,
             };
+        }
+
+        private async Task<List<NotionDatabaseProperty>> GetDataSourcePropertiesAsync(string apiToken, string dataSourceId)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"data_sources/{dataSourceId}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+            request.Headers.Add("Notion-Version", NotionVersion);
+
+            using var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+            var payload = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException($"Notion API request failed ({(int)response.StatusCode}): {payload}");
+            }
+
+            using var doc = JsonDocument.Parse(payload);
+            var root = doc.RootElement;
+            return ParseProperties(root);
+        }
+
+        private static List<NotionDatabaseProperty> ParseProperties(JsonElement root)
+        {
+            var properties = new List<NotionDatabaseProperty>();
+            if (!root.TryGetProperty("properties", out var propertiesElement) ||
+                propertiesElement.ValueKind != JsonValueKind.Object)
+            {
+                return properties;
+            }
+
+            foreach (var property in propertiesElement.EnumerateObject())
+            {
+                var type = property.Value.TryGetProperty("type", out var typeElement)
+                    ? typeElement.GetString() ?? string.Empty
+                    : string.Empty;
+
+                properties.Add(new NotionDatabaseProperty
+                {
+                    Name = property.Name,
+                    Type = type,
+                });
+            }
+
+            return properties;
         }
 
         private static string ParseDatabaseId(string databaseUrl)
@@ -452,6 +517,7 @@ namespace NotionDeadlineFairy.Services
         private sealed class NotionDatabaseMetadata
         {
             public string Title { get; init; } = string.Empty;
+            public string DataSourceId { get; init; } = string.Empty;
             public List<NotionDatabaseProperty> Properties { get; init; } = new();
         }
     }
