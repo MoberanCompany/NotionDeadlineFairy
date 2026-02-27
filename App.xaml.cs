@@ -81,14 +81,13 @@ namespace NotionDeadlineFairy
 
             var setting = SettingService.Instance.Current;
 
-            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor, setting.FontSize, setting.FontFamily);
-            ApplyWindowMode(setting.WindowMode);
+            //ApplyTheme(setting.BackgroundColor, setting.ForegroundColor, setting.FontSize, setting.FontFamily);
+            //ApplyWindowMode(setting.WindowMode);
 
             _trayService = new TrayService();
             _trayService.Initialize();
 
-            var setting = SettingService.Instance.Current;
-
+            
             ApplyTheme(setting.BackgroundColor, setting.ForegroundColor);
             ApplyEditMode(setting.IsEditMode);
 
