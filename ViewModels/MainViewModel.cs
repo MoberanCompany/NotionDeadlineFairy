@@ -1,9 +1,10 @@
-﻿using NotionDeadlineFairy.Commands;
+﻿using NotionDeadlineFairy.Abstractions;
+using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Services;
 
 namespace NotionDeadlineFairy.ViewModels
 {
-    public class MainViewModel : BaseViewModel
+    public class MainViewModel : BaseViewModel, IWidget
     {
         private readonly NotionService _notionService;
 
@@ -39,7 +40,24 @@ namespace NotionDeadlineFairy.ViewModels
                 Count--;
             });
 
-            var list = this._notionService.GetAllDatabaseItems();
+            Refresh();
+
+            ServiceLocator.Instance.Register<IWidget>(this);
+        }
+
+        public void Refresh()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetEditMode(bool enabled)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetClickThrough(bool enabled)
+        {
+            throw new NotImplementedException();
         }
     }
 }
