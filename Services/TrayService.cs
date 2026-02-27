@@ -1,4 +1,5 @@
-﻿using NotionDeadlineFairy.Models;
+﻿using NotionDeadlineFairy.Abstractions;
+using NotionDeadlineFairy.Models;
 using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
 
@@ -9,9 +10,6 @@ namespace NotionDeadlineFairy.Services
         public required Action<WindowMode> OnWindowModeChanged { get; init; }
         public required Action<bool> OnAutoStartChanged { get; init; }
         public required Action<int> OnPollingIntervalChanged { get; init; }
-        public required Action<bool> OnEditModeChanged { get; init; }
-        public required Action OnRefreshRequested { get; init; }
-        public required Action<bool> OnClickThroughChanged { get; init; }
         public required Action OnDatabaseEditRequested { get; init; }
         public required Action OnExitRequested { get; init; }
     }
@@ -106,11 +104,23 @@ namespace NotionDeadlineFairy.Services
                 Checked = setting.IsEditMode
             };
             _editModeItem.CheckedChanged += (_, _) =>
-                callbacks.OnEditModeChanged(_editModeItem.Checked);
+            {
+                bool enabled = _editModeItem.Checked;
+
+                SettingService.Instance.Current.IsEditMode = enabled;
+                SettingService.Instance.Save();
+
+                List<IWidget> views = ServiceLocator.Instance.GetService<IWidget>();
+                views?.ForEach(v => v.SetEditMode(enabled));
+            };
             trayMenu.Items.Add(_editModeItem);
 
             // 5. Refresh now
-            trayMenu.Items.Add("지금 새로고침", null, (_, _) => callbacks.OnRefreshRequested());
+            trayMenu.Items.Add("지금 새로고침", null, (_, _) =>
+            {
+                var datas = ServiceLocator.Instance.GetService<IWidget>();
+                datas?.ForEach(d => d.Refresh());
+            });
 
             // 6. Click Through
             _clickThroughItem = new Forms.ToolStripMenuItem("Click Through")
@@ -119,7 +129,13 @@ namespace NotionDeadlineFairy.Services
                 Checked = setting.IsClickThrough
             };
             _clickThroughItem.CheckedChanged += (_, _) =>
-                callbacks.OnClickThroughChanged(_clickThroughItem.Checked);
+            {
+                var enabled = _clickThroughItem.Checked;
+                SettingService.Instance.Current.IsClickThrough = enabled;
+                SettingService.Instance.Save();
+                var views = ServiceLocator.Instance.GetService<IWidget>();
+                views?.ForEach(v => v.SetClickThrough(enabled));
+            };
             trayMenu.Items.Add(_clickThroughItem);
 
             trayMenu.Items.Add(new Forms.ToolStripSeparator());

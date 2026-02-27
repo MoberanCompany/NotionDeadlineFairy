@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using NotionDeadlineFairy.Models;
 using NotionDeadlineFairy.Services;
+using NotionDeadlineFairy.Utils;
 using NotionDeadlineFairy.Views;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -18,6 +19,9 @@ namespace NotionDeadlineFairy
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            
+            DispatcherHelper.Initialize(Dispatcher);
+            
             SettingService.Instance.Load();
 
             _mainWindow = new MainWindow();
@@ -25,8 +29,6 @@ namespace NotionDeadlineFairy
 
             var setting = SettingService.Instance.Current;
             ApplyWindowMode(setting.WindowMode);
-            ApplyClickThrough(setting.IsClickThrough);
-            ApplyEditMode(setting.IsEditMode);
 
             _trayService = new TrayService();
             _trayService.Initialize(new TrayMenuCallbacks
@@ -34,9 +36,6 @@ namespace NotionDeadlineFairy
                 OnWindowModeChanged = OnWindowModeChanged,
                 OnAutoStartChanged = OnAutoStartChanged,
                 OnPollingIntervalChanged = OnPollingIntervalChanged,
-                OnEditModeChanged = OnEditModeChanged,
-                OnRefreshRequested = OnRefreshRequested,
-                OnClickThroughChanged = OnClickThroughChanged,
                 OnDatabaseEditRequested = OpenDatabaseEdit,
                 OnExitRequested = () => Shutdown(),
             });
@@ -99,36 +98,6 @@ namespace NotionDeadlineFairy
         {
             SettingService.Instance.Current.PollingIntervalSeconds = seconds;
             SettingService.Instance.Save();
-        }
-
-        private void OnEditModeChanged(bool enabled)
-        {
-            SettingService.Instance.Current.IsEditMode = enabled;
-            SettingService.Instance.Save();
-            ApplyEditMode(enabled);
-        }
-
-        private void ApplyEditMode(bool enabled)
-        {
-            if (_mainWindow is null) return;
-            _mainWindow.ResizeMode = enabled ? ResizeMode.CanResizeWithGrip : ResizeMode.NoResize;
-        }
-
-        private void OnRefreshRequested()
-        {
-            // TODO: 데이터 새로고침 로직 구현
-        }
-
-        private void OnClickThroughChanged(bool enabled)
-        {
-            SettingService.Instance.Current.IsClickThrough = enabled;
-            SettingService.Instance.Save();
-            ApplyClickThrough(enabled);
-        }
-
-        private void ApplyClickThrough(bool enabled)
-        {
-            _mainWindow?.SetClickThrough(enabled);
         }
 
         private void OpenDatabaseEdit()
