@@ -13,8 +13,10 @@
     ShowInTaskbar="False"
     ShowActivated="False"   
     Title="MainWindow"
-    Width="800"
-    Height="450"
+    Width="{Binding Width, Mode=TwoWay}"
+    Height="{Binding Height, Mode=TwoWay}"
+    Top="{Binding Top, Mode=TwoWay}"
+    Left="{Binding Left, Mode=TwoWay}"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
     mc:Ignorable="d"
     >
@@ -39,7 +41,6 @@
         </Style>
     </Window.Style>
     <Grid>
-        <!-- 메인 요소들 ContentControl 수정하시면 됩니다.-->
         <ContentControl x:Name="MainContentFrame" />
         <Grid x:Name="OverlayLayer"
            Background="#50000000" 
