@@ -413,20 +413,19 @@ namespace NotionDeadlineFairy.Services
                 return string.Empty;
             }
 
-            if (!dateElement.TryGetProperty("end", out var endElement))
+            dateElement.TryGetProperty("end", out var endElement);
+            if (endElement.GetString() != null)
             {
-                return string.Empty;
+                return endElement.GetString();
             }
-            else
+            dateElement.TryGetProperty("start", out endElement);
+
+            if (endElement.GetString() != null)
             {
-                if (!dateElement.TryGetProperty("start", out endElement))
-                {
-                    return string.Empty;
-                }
-
+                return endElement.GetString();
             }
 
-            return endElement.GetString() ?? string.Empty;
+            return string.Empty;
         }
 
         private static DateTime? ExtractDateTime(JsonElement property)
