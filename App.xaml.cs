@@ -87,11 +87,18 @@ namespace NotionDeadlineFairy
             _trayService.Initialize();
 
             
-            //ApplyEditMode(setting.IsEditMode);
+            ApplyEditMode(setting.IsEditMode);
 
             PollingService.Instance.Start(setting.PollingIntervalSeconds);
         }
 
+        private void ApplyEditMode(bool IsEditMode)
+        {
+            if(_mainWindow != null && _mainWindow.DataContext is MainViewModel vm)
+            {
+                vm.IsEditMode = IsEditMode;
+            }
+        }
 
         protected override void OnExit(ExitEventArgs e)
         {
