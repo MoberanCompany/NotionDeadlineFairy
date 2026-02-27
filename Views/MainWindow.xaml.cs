@@ -1,8 +1,6 @@
 using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Services;
 using NotionDeadlineFairy.ViewModels;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -39,6 +37,20 @@ namespace NotionDeadlineFairy.Views
                     vm.Left = this.Left;
                     vm.Top = this.Top;
                 }
+            }
+        }
+
+        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is MainViewModel vm)
+            {
+                vm.IsSettingsVisible = true;
+            }
+        }
+
+        private void CloseSettings_Click(object sender, RoutedEventArgs e) {
+            if (this.DataContext is MainViewModel vm) {
+                vm.IsSettingsVisible = false;
             }
         }
     }
