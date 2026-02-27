@@ -40,11 +40,12 @@ namespace NotionDeadlineFairy.Views
             }
         }
 
-        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+
+        private void ToggleSettings_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is MainViewModel vm)
             {
-                vm.IsSettingsVisible = true;
+                vm.IsSettingsVisible = !vm.IsSettingsVisible;
             }
         }
 
