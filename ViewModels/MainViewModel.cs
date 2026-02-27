@@ -47,17 +47,20 @@ namespace NotionDeadlineFairy.ViewModels
 
         public void Refresh()
         {
-            throw new NotImplementedException();
+            // TODO: 코드 구현
+            // throw new NotImplementedException();
         }
 
         public void SetEditMode(bool enabled)
         {
-            throw new NotImplementedException();
+            // TODO: 코드 구현
+            // throw new NotImplementedException();
         }
 
         public void SetClickThrough(bool enabled)
         {
-            throw new NotImplementedException();
+            // TODO: 코드 구현
+            // throw new NotImplementedException();
         }
     }
 }
