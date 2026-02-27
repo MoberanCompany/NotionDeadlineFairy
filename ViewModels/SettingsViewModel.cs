@@ -43,7 +43,7 @@ namespace NotionDeadlineFairy.ViewModels
                 });
             });
 
-            TestFetchCommand = new RelayCommand((arg) =>
+            TestFetchCommand = new RelayCommand(async (arg) =>
             {
                 if (arg is NotionDatabaseSettingItemViewModel item)
                 {
@@ -64,7 +64,7 @@ namespace NotionDeadlineFairy.ViewModels
                     {
                         item.ResultMessage = "Validating..";
 
-                        var properties = notionApi.GetDatabaseProperties(config);
+                        var properties = await notionApi.GetDatabasePropertiesAsync(config);
                         if (!string.IsNullOrWhiteSpace(config.EndDatePropertyName))
                         {
                             var endDateProperty = properties.FirstOrDefault(x =>
@@ -105,7 +105,7 @@ namespace NotionDeadlineFairy.ViewModels
 
                         item.ResultMessage = "Fetching..";
 
-                        var result = notionApi.GetDatabaseItems(config);
+                        var result = await notionApi.GetDatabaseItemsAsync(config);
                         item.IsConnected = true;
 
                         var message = "OK";
@@ -149,7 +149,7 @@ namespace NotionDeadlineFairy.ViewModels
 
             EditTextFilterCommand = new RelayCommand(_ =>
             {
-                // TODO ÇÊÅÍ ÆíÁý ÆË¾÷
+                // TODO ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ë¾ï¿½
             });
         }
     }

@@ -2,6 +2,7 @@ using NotionDeadlineFairy.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NotionDeadlineFairy.Services
 {
@@ -16,7 +17,7 @@ namespace NotionDeadlineFairy.Services
 
         public NotionService() { }
 
-        public List<NotionPageData> GetAllDatabaseItems()
+        public async Task<List<NotionPageData>> GetAllDatabaseItemsAsync()
         {
             var configs = SettingService.Instance.Current.DatabaseConfigs;
             var merged = new List<NotionPageData>();
@@ -29,7 +30,7 @@ namespace NotionDeadlineFairy.Services
                     continue;
                 }
 
-                var items = _notionApi.GetDatabaseItems(config);
+                var items = await _notionApi.GetDatabaseItemsAsync(config);
                 merged.AddRange(items);
             }
 
