@@ -13,9 +13,9 @@ namespace NotionDeadlineFairy.Services
         public static NotionApi Instance => _instance.Value;
 
         public NotionApi() { }
-        public List<NotionPage> GetDatabaseItems(string token, string databaseUrl)
+        public List<NotionPageData> GetDatabaseItems(string token, string databaseUrl)
         {
-            return new List<NotionPage>();
+            return new List<NotionPageData>();
         }
     }
 }
