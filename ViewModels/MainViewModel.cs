@@ -71,8 +71,6 @@ namespace NotionDeadlineFairy.ViewModels
 
         private FontFamily _selectedFontFamily = new FontFamily("Segoe UI");
         public FontFamily SelectedFontFamily { get => _selectedFontFamily; set { _selectedFontFamily = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
-
-        // ✅ 날짜 필터
         public DateType[] DateTypeOptions { get; } =
             Enum.GetValues(typeof(DateType)).Cast<DateType>().ToArray();
 
@@ -134,7 +132,6 @@ namespace NotionDeadlineFairy.ViewModels
                     TaskList.Clear();
                     if (rawData != null && rawData.Any())
                     {
-                        // ✅ 날짜 필터 적용
                         var upper = DateUtil.getTime(DateType);
                         var filtered = rawData.Where(t => PassDate(t, upper)).ToList();
 

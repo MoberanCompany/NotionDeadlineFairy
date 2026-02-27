@@ -9,7 +9,6 @@
     WindowStyle="None"
     AllowsTransparency="True"
     Background="Transparent"
-    Topmost="True"
     ShowInTaskbar="False"
     ShowActivated="False"
     Title="MainWindow"
