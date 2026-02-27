@@ -155,8 +155,12 @@ namespace NotionDeadlineFairy
             // 최소화 명령 자체를 차단 (버튼/Alt+Space/Win+D 등에서 오는 SC_MINIMIZE 대비)
             if (msg == WM_SYSCOMMAND && ((wParam.ToInt32() & 0xFFF0) == SC_MINIMIZE))
             {
-                handled = true;
-                RestoreToLastState();
+                // 현재 창 모드가 Normal이 아닌 경우에만 최소화 방지
+                if (SettingService.Instance.Current.WindowMode != WindowMode.Normal)
+                {
+                    handled = true;
+                    RestoreToLastState();
+                }
             }
             return IntPtr.Zero;
         }
@@ -191,9 +195,13 @@ namespace NotionDeadlineFairy
         private void _mainWindow_StateChanged(object? sender, EventArgs e)
         {
             if (_mainWindow.WindowState == WindowState.Minimized)
+            {
                 RestoreToLastState();
+            }
             else
+            {
                 _lastNonMinimized = _mainWindow.WindowState;
+            }
         }
 
 
