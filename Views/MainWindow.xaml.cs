@@ -53,5 +53,13 @@ namespace NotionDeadlineFairy.Views
                 vm.IsSettingsVisible = false;
             }
         }
+
+        private void SaveColor_Click(object sender, RoutedEventArgs e)
+        {
+            if(this.DataContext is MainViewModel vm)
+            {
+                vm.SaveCurrentColor();
+            }
+        }
     }
 }

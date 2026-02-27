@@ -56,7 +56,7 @@
                         <TextBlock Text="글자색 (Hex)" Foreground="White" Margin="0,0,0,5"/>
                         <TextBox Text="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15"/>
 
-                        <Button Content="저장" />
+                        <Button Content="저장" IsEnabled="{Binding EnabledSave}" Click="SaveColor_Click" />
                         <Button Content="닫기" Click="CloseSettings_Click"></Button>
                     </StackPanel>
                 </Border>
