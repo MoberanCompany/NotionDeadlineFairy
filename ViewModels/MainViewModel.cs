@@ -120,10 +120,7 @@ namespace NotionDeadlineFairy.ViewModels
             this.Height = settings.WindowHeight;
             this.Left = settings.WindowLeft;
             this.Top = settings.WindowTop;
-            this.BackgroundColor = settings.BackgroundColor;
-            this.ForegroundColor = settings.ForegroundColor;
-            this.FontSize = settings.FontSize;
-            this.SelectedFontFamily = new System.Windows.Media.FontFamily(settings.FontFamily);
+
         }
 
         public void Refresh()
