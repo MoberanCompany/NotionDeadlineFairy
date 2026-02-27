@@ -65,6 +65,12 @@ namespace NotionDeadlineFairy.Services
     {
         public List<NotionConfig> DatabaseConfigs { get; set; } = new List<NotionConfig>();
         public bool IsTopmost { get; set; } = true;
+        public double WindowWidth { get; set; } = 350;
+        public double WindowHeight { get; set; } = 500;
+        public double WindowLeft { get; set; } = 300;
+        public double WindowTop { get; set; } = 300;
+        public string BackgroundColor { get; set; } = "#FFFFFFFF";
+        public string ForegroundColor { get; set; } = "#000000FF";
 
         public static AppSetting CreateDefault()
         {
