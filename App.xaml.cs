@@ -82,8 +82,10 @@ namespace NotionDeadlineFairy
             _trayService = new TrayService();
             _trayService.Initialize();
 
-            ApplyTheme(SettingService.Instance.Current.BackgroundColor, SettingService.Instance.Current.ForegroundColor);
-            ApplyEditMode(SettingService.Instance.Current.IsEditMode);
+            var setting = SettingService.Instance.Current;
+
+            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor);
+            ApplyEditMode(setting.IsEditMode);
             ThemeService.Instance.ThemeChanged += OnThemeChanged;
             PollingService.Instance.Start(setting.PollingIntervalSeconds);
         }
@@ -91,6 +93,9 @@ namespace NotionDeadlineFairy
 
         protected override void OnExit(ExitEventArgs e)
         {
+            // 호출 서비스 종료
+            PollingService.Instance.Stop();
+
             // 설정 저장
             SettingService.Instance.Save();
 
@@ -172,7 +177,6 @@ namespace NotionDeadlineFairy
                 RestoreToLastState();
             else
                 _lastNonMinimized = _mainWindow.WindowState;
-            PollingService.Instance.UpdateInterval(seconds);
         }
 
 
@@ -212,11 +216,8 @@ namespace NotionDeadlineFairy
 
         public void Quit()
         {
-            PollingService.Instance.Stop();
-            SettingService.Instance.Save();
-            _trayService?.Dispose();
-            _trayService = null;
-            base.OnExit(e);
+            // 프로그램 종료
+            Shutdown();
         }
         #endregion
 

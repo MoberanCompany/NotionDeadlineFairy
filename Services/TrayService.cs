@@ -11,9 +11,6 @@ namespace NotionDeadlineFairy.Services
         private DateTime _lastRefreshTime = DateTime.Now;
         private Forms.NotifyIcon? _trayIcon;
 
-        private CancellationTokenSource? _pollingCancellationTokenSource;
-        private Task? _pollingTask;
-
         private Forms.ToolStripMenuItem? _normalItem;
         private Forms.ToolStripMenuItem? _topmostItem;
         private Forms.ToolStripMenuItem? _bottommostItem;
@@ -31,25 +28,22 @@ namespace NotionDeadlineFairy.Services
 
         public void Initialize()
         {
-            var setting = SettingService.Instance.Current;
-            var trayMenu = new Forms.ContextMenuStrip();
+            AppSetting setting = SettingService.Instance.Current;
+            ContextMenuStrip trayMenu = new Forms.ContextMenuStrip();
 
             // 1. Window Mode
-            var windowModeMenu = new Forms.ToolStripMenuItem("윈도우 모드");
+            ToolStripMenuItem windowModeMenu = new Forms.ToolStripMenuItem("윈도우 모드");
             _normalItem = new Forms.ToolStripMenuItem("Normal", null, (_, _) =>
             {
                 SetWindowModeChecked(WindowMode.Normal);
-                OnWindowModeChanged(WindowMode.Normal);
             });
             _topmostItem = new Forms.ToolStripMenuItem("Top-most", null, (_, _) =>
             {
                 SetWindowModeChecked(WindowMode.Topmost);
-                OnWindowModeChanged(WindowMode.Topmost);
             });
             _bottommostItem = new Forms.ToolStripMenuItem("Bottom-most", null, (_, _) =>
             {
                 SetWindowModeChecked(WindowMode.Bottommost);
-                OnWindowModeChanged(WindowMode.Bottommost);
             });
             windowModeMenu.DropDownItems.AddRange([_normalItem, _topmostItem, _bottommostItem]);
             SetWindowModeChecked(setting.WindowMode);
@@ -65,7 +59,7 @@ namespace NotionDeadlineFairy.Services
             trayMenu.Items.Add(_autoStartItem);
 
             // 3. Polling interval
-            var pollingMenu = new Forms.ToolStripMenuItem("폴링 주기");
+            ToolStripMenuItem pollingMenu = new Forms.ToolStripMenuItem("폴링 주기");
             _poll1MinItem = new Forms.ToolStripMenuItem("1분", null, (_, _) =>
             {
                 SetPollingIntervalChecked(60);
@@ -138,11 +132,6 @@ namespace NotionDeadlineFairy.Services
                 Text = "NotionOverlayWidget",
                 ContextMenuStrip = trayMenu
             };
-
-
-            // 폴링 작업 시작
-            _pollingCancellationTokenSource = new CancellationTokenSource();
-            _pollingTask = StartPollingAsync(setting, _pollingCancellationTokenSource.Token);
         }
 
         private async Task StartPollingAsync(dynamic setting, CancellationToken cancellationToken)
@@ -176,13 +165,10 @@ namespace NotionDeadlineFairy.Services
 
         private void SetWindowModeChecked(WindowMode mode)
         {
-            if (_normalItem is not null) _normalItem.Checked = mode == WindowMode.Normal;
-            if (_topmostItem is not null) _topmostItem.Checked = mode == WindowMode.Topmost;
-            if (_bottommostItem is not null) _bottommostItem.Checked = mode == WindowMode.Bottommost;
-        }
+            if (_normalItem != null) _normalItem.Checked = mode == WindowMode.Normal;
+            if (_topmostItem != null) _topmostItem.Checked = mode == WindowMode.Topmost;
+            if (_bottommostItem != null) _bottommostItem.Checked = mode == WindowMode.Bottommost;
 
-        private void OnWindowModeChanged(WindowMode mode)
-        {
             SettingService.Instance.Current.WindowMode = mode;
             SettingService.Instance.Save();
 
@@ -192,13 +178,27 @@ namespace NotionDeadlineFairy.Services
 
         private void SetPollingIntervalChecked(int seconds)
         {
-            if (_poll1MinItem is not null) _poll1MinItem.Checked = seconds == 60;
-            if (_poll5MinItem is not null) _poll5MinItem.Checked = seconds == 300;
-            if (_poll10MinItem is not null) _poll10MinItem.Checked = seconds == 600;
-            if (_poll30MinItem is not null) _poll30MinItem.Checked = seconds == 1800;
+            if (_poll1MinItem != null)
+            {
+                _poll1MinItem.Checked = (seconds == 60);
+            }
+            if (_poll5MinItem != null)
+            {
+                _poll5MinItem.Checked = (seconds == 300);
+            }
+            if (_poll10MinItem != null)
+            {
+                _poll10MinItem.Checked = (seconds == 600);
+            }
+            if (_poll30MinItem != null)
+            {
+                _poll30MinItem.Checked = (seconds == 1800);
+            }
 
             SettingService.Instance.Current.PollingIntervalSeconds = seconds;
             SettingService.Instance.Save();
+
+            PollingService.Instance.UpdateInterval(seconds);
         }
 
         private void OnAutoStartChanged(object? sender, EventArgs e)
@@ -217,7 +217,7 @@ namespace NotionDeadlineFairy.Services
             if (enabled)
             {
                 var exePath = Environment.ProcessPath;
-                if (exePath is not null)
+                if (exePath != null)
                     key.SetValue(appName, exePath);
             }
             else
@@ -252,18 +252,6 @@ namespace NotionDeadlineFairy.Services
 
         public void Dispose()
         {
-            // 폴링 작업 취소
-            _pollingCancellationTokenSource?.Cancel();
-            try
-            {
-                _pollingTask?.Wait(TimeSpan.FromSeconds(5));
-            }
-            catch (AggregateException)
-            {
-                // 취소 예외 무시
-            }
-            _pollingCancellationTokenSource?.Dispose();
-
             // 트레이 아이콘 정리
             if (_trayIcon is null) return;
             _trayIcon.Visible = false;
