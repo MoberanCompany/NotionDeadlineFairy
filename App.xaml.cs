@@ -1,16 +1,23 @@
 ﻿using Microsoft.Win32;
+using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Models;
 using NotionDeadlineFairy.Services;
 using NotionDeadlineFairy.Utils;
 using NotionDeadlineFairy.Views;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace NotionDeadlineFairy
 {
-    public partial class App : System.Windows.Application
+    public partial class App : System.Windows.Application, INavigation
     {
+        private const int WM_SYSCOMMAND = 0x0112;
+        private const int SC_MINIMIZE = 0xF020;
+
+        private WindowState _lastNonMinimized = WindowState.Normal;
+        private bool _restoring;
+        private HwndSource? _source;
 
         private TrayService? _trayService;
         private SettingsWindow? _settingsWindow;
@@ -19,88 +26,76 @@ namespace NotionDeadlineFairy
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            
+
             DispatcherHelper.Initialize(Dispatcher);
-            
+
+            ServiceLocator.Instance.Register<INavigation>(this);
+
             SettingService.Instance.Load();
 
             _mainWindow = new MainWindow();
+            _mainWindow.SourceInitialized += _mainWindow_SourceInitialized;
+            _mainWindow.StateChanged += _mainWindow_StateChanged;
             _mainWindow.Show();
 
-            var setting = SettingService.Instance.Current;
-            ApplyWindowMode(setting.WindowMode);
-
             _trayService = new TrayService();
-            _trayService.Initialize(new TrayMenuCallbacks
-            {
-                OnWindowModeChanged = OnWindowModeChanged,
-                OnAutoStartChanged = OnAutoStartChanged,
-                OnPollingIntervalChanged = OnPollingIntervalChanged,
-                OnDatabaseEditRequested = OpenDatabaseEdit,
-                OnExitRequested = () => Shutdown(),
-            });
+            _trayService.Initialize();
         }
 
-        private void OnWindowModeChanged(WindowMode mode)
+        private void _mainWindow_SourceInitialized(object? sender, EventArgs e)
         {
-            SettingService.Instance.Current.WindowMode = mode;
-            SettingService.Instance.Save();
-            ApplyWindowMode(mode);
+            _source = (HwndSource)PresentationSource.FromVisual((Visual)sender);
+            _source.AddHook(WndProc);
         }
 
-        private void ApplyWindowMode(WindowMode mode)
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if (_mainWindow is null) return;
-
-            switch (mode)
+            // 최소화 명령 자체를 차단 (버튼/Alt+Space/Win+D 등에서 오는 SC_MINIMIZE 대비)
+            if (msg == WM_SYSCOMMAND && ((wParam.ToInt32() & 0xFFF0) == SC_MINIMIZE))
             {
-                case WindowMode.Normal:
-                    _mainWindow.Topmost = false;
-                    break;
-                case WindowMode.Topmost:
-                    _mainWindow.Topmost = true;
-                    break;
-                case WindowMode.Bottommost:
-                    _mainWindow.Topmost = false;
-                    var handle = new WindowInteropHelper(_mainWindow).Handle;
-                    if (handle != IntPtr.Zero)
-                    {
-                        SetWindowPos(handle, HWND_BOTTOM, 0, 0, 0, 0,
-                            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-                    }
-                    break;
+                handled = true;
+                RestoreToLastState();
             }
+            return IntPtr.Zero;
         }
 
-        private void OnAutoStartChanged(bool enabled)
+        private void RestoreToLastState()
         {
-            SettingService.Instance.Current.AutoStart = enabled;
-            SettingService.Instance.Save();
+            if (_restoring) return;
+            _restoring = true;
 
-            using var key = Registry.CurrentUser.OpenSubKey(
-                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
-            if (key is null) return;
-
-            const string appName = "NotionDeadlineFairy";
-            if (enabled)
+            Dispatcher.BeginInvoke(new Action(() =>
             {
-                var exePath = Environment.ProcessPath;
-                if (exePath is not null)
-                    key.SetValue(appName, exePath);
-            }
+                try
+                {
+                    var target = _lastNonMinimized == WindowState.Minimized
+                        ? WindowState.Normal
+                        : _lastNonMinimized;
+
+                    _mainWindow.WindowState = target;
+
+                    // 필요하면 앞으로 가져오기(원치 않으면 주석)
+                    // Activate();
+                    // Topmost = true;
+                }
+                finally
+                {
+                    _restoring = false;
+                }
+            }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
+
+
+        private void _mainWindow_StateChanged(object? sender, EventArgs e)
+        {
+            if (_mainWindow.WindowState == WindowState.Minimized)
+                RestoreToLastState();
             else
-            {
-                key.DeleteValue(appName, false);
-            }
+                _lastNonMinimized = _mainWindow.WindowState;
         }
 
-        private void OnPollingIntervalChanged(int seconds)
-        {
-            SettingService.Instance.Current.PollingIntervalSeconds = seconds;
-            SettingService.Instance.Save();
-        }
-
-        private void OpenDatabaseEdit()
+        #region INavigation
+        public void OpenDatabaseEdit()
         {
             if (_settingsWindow is { IsLoaded: true })
             {
@@ -112,26 +107,24 @@ namespace NotionDeadlineFairy
             _settingsWindow.Show();
         }
 
+        public void Quit()
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
+        #endregion
+
+
         protected override void OnExit(ExitEventArgs e)
         {
+            // 설정 저장
             SettingService.Instance.Save();
+
+            // 트레이 서비스 종료
             _trayService?.Dispose();
             _trayService = null;
+
+            // 프로그램 종료
             base.OnExit(e);
         }
-
-        #region P/Invoke
-
-        private static readonly IntPtr HWND_BOTTOM = new(1);
-        private const uint SWP_NOMOVE = 0x0002;
-        private const uint SWP_NOSIZE = 0x0001;
-        private const uint SWP_NOACTIVATE = 0x0010;
-
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetWindowPos(IntPtr hwnd, IntPtr hwndInsertAfter,
-            int x, int y, int cx, int cy, uint flags);
-
-        #endregion
     }
 }

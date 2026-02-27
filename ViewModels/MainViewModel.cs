@@ -1,7 +1,6 @@
 using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Services;
-using System.Threading.Tasks;
 
 namespace NotionDeadlineFairy.ViewModels
 {
@@ -22,6 +21,7 @@ namespace NotionDeadlineFairy.ViewModels
                 }
             }
         }
+
 
         public RelayCommand IncrementCommand { get; }
         public RelayCommand DecrementCommand { get; }
@@ -47,24 +47,10 @@ namespace NotionDeadlineFairy.ViewModels
 
         public void Refresh()
         {
-            // TODO: 内靛 备泅
-            // throw new NotImplementedException();
-            _ = InitializeAsync();
+            _ = RefreshAsync();
         }
 
-        public void SetEditMode(bool enabled)
-        {
-            // TODO: 内靛 备泅
-            // throw new NotImplementedException();
-        }
-
-        public void SetClickThrough(bool enabled)
-        {
-            // TODO: 内靛 备泅
-            // throw new NotImplementedException();
-        }
-
-        private async Task InitializeAsync()
+        private async Task RefreshAsync()
         {
             var list = await this._notionService.GetAllDatabaseItemsAsync();
         }

@@ -1,4 +1,5 @@
 using NotionDeadlineFairy.Abstractions;
+using NotionDeadlineFairy.Models;
 using NotionDeadlineFairy.Services;
 using NotionDeadlineFairy.ViewModels;
 using System.ComponentModel;
@@ -16,6 +17,10 @@ namespace NotionDeadlineFairy.Views
         private const int WS_EX_TRANSPARENT = 0x00000020;
         private const int WM_NCHITTEST = 0x0084;
         private static readonly IntPtr HTTRANSPARENT = new(-1);
+        private static readonly IntPtr HWND_BOTTOM = new(1);
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOACTIVATE = 0x0010;
 
         [DllImport("user32.dll", EntryPoint = "GetWindowLong", SetLastError = true)]
         private static extern int GetWindowLong32(IntPtr hWnd, int nIndex);
@@ -29,6 +34,11 @@ namespace NotionDeadlineFairy.Views
         [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", SetLastError = true)]
         private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetWindowPos(IntPtr hwnd, IntPtr hwndInsertAfter,
+            int x, int y, int cx, int cy, uint flags);
+
         private static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex) =>
             IntPtr.Size == 8 ? GetWindowLongPtr64(hWnd, nIndex) : new IntPtr(GetWindowLong32(hWnd, nIndex));
 
@@ -40,11 +50,38 @@ namespace NotionDeadlineFairy.Views
         private HwndSourceHook? _clickThroughHook;
         private bool _isClickThrough;
 
+        public void SetWindowMode(WindowMode mode)
+        {
+            switch (mode)
+            {
+                case WindowMode.Normal:
+                    Topmost = false;
+                    break;
+                case WindowMode.Topmost:
+                    Topmost = true;
+                    break;
+                case WindowMode.Bottommost:
+                    Topmost = false;
+                    var handle = new WindowInteropHelper(this).Handle;
+                    if (handle != IntPtr.Zero)
+                    {
+                        SetWindowPos(handle, HWND_BOTTOM, 0, 0, 0, 0,
+                            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                    }
+                    break;
+            }
+        }
+
         public void SetClickThrough(bool enable)
         {
             _isClickThrough = enable;
             IsHitTestVisible = !enable;
             ApplyClickThroughStyle(enable);
+        }
+
+        public void SetEditMode(bool enabled)
+        {
+            ResizeMode = enabled ? ResizeMode.CanResizeWithGrip : ResizeMode.NoResize;
         }
 
         private void ApplyClickThroughStyle(bool enable)
@@ -86,14 +123,5 @@ namespace NotionDeadlineFairy.Views
             return IntPtr.Zero;
         }
 
-        public void Refresh()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetEditMode(bool enabled)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

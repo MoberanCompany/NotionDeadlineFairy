@@ -1,19 +1,11 @@
-﻿using NotionDeadlineFairy.Abstractions;
+﻿using Microsoft.Win32;
+using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Models;
 using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
 
 namespace NotionDeadlineFairy.Services
 {
-    public class TrayMenuCallbacks
-    {
-        public required Action<WindowMode> OnWindowModeChanged { get; init; }
-        public required Action<bool> OnAutoStartChanged { get; init; }
-        public required Action<int> OnPollingIntervalChanged { get; init; }
-        public required Action OnDatabaseEditRequested { get; init; }
-        public required Action OnExitRequested { get; init; }
-    }
-
     public class TrayService
     {
         private Forms.NotifyIcon? _trayIcon;
@@ -33,7 +25,7 @@ namespace NotionDeadlineFairy.Services
 
         public TrayService() { }
 
-        public void Initialize(TrayMenuCallbacks callbacks)
+        public void Initialize()
         {
             var setting = SettingService.Instance.Current;
             var trayMenu = new Forms.ContextMenuStrip();
@@ -43,17 +35,17 @@ namespace NotionDeadlineFairy.Services
             _normalItem = new Forms.ToolStripMenuItem("Normal", null, (_, _) =>
             {
                 SetWindowModeChecked(WindowMode.Normal);
-                callbacks.OnWindowModeChanged(WindowMode.Normal);
+                OnWindowModeChanged(WindowMode.Normal);
             });
             _topmostItem = new Forms.ToolStripMenuItem("Top-most", null, (_, _) =>
             {
                 SetWindowModeChecked(WindowMode.Topmost);
-                callbacks.OnWindowModeChanged(WindowMode.Topmost);
+                OnWindowModeChanged(WindowMode.Topmost);
             });
             _bottommostItem = new Forms.ToolStripMenuItem("Bottom-most", null, (_, _) =>
             {
                 SetWindowModeChecked(WindowMode.Bottommost);
-                callbacks.OnWindowModeChanged(WindowMode.Bottommost);
+                OnWindowModeChanged(WindowMode.Bottommost);
             });
             windowModeMenu.DropDownItems.AddRange([_normalItem, _topmostItem, _bottommostItem]);
             SetWindowModeChecked(setting.WindowMode);
@@ -65,8 +57,7 @@ namespace NotionDeadlineFairy.Services
                 CheckOnClick = true,
                 Checked = setting.AutoStart
             };
-            _autoStartItem.CheckedChanged += (_, _) =>
-                callbacks.OnAutoStartChanged(_autoStartItem.Checked);
+            _autoStartItem.CheckedChanged += OnAutoStartChanged;
             trayMenu.Items.Add(_autoStartItem);
 
             // 3. Polling interval
@@ -74,22 +65,22 @@ namespace NotionDeadlineFairy.Services
             _poll1MinItem = new Forms.ToolStripMenuItem("1분", null, (_, _) =>
             {
                 SetPollingIntervalChecked(60);
-                callbacks.OnPollingIntervalChanged(60);
+                // callbacks.OnPollingIntervalChanged(60);
             });
             _poll5MinItem = new Forms.ToolStripMenuItem("5분", null, (_, _) =>
             {
                 SetPollingIntervalChecked(300);
-                callbacks.OnPollingIntervalChanged(300);
+                //callbacks.OnPollingIntervalChanged(300);
             });
             _poll10MinItem = new Forms.ToolStripMenuItem("10분", null, (_, _) =>
             {
                 SetPollingIntervalChecked(600);
-                callbacks.OnPollingIntervalChanged(600);
+                // callbacks.OnPollingIntervalChanged(600);
             });
             _poll30MinItem = new Forms.ToolStripMenuItem("30분", null, (_, _) =>
             {
                 SetPollingIntervalChecked(1800);
-                callbacks.OnPollingIntervalChanged(1800);
+                // callbacks.OnPollingIntervalChanged(1800);
             });
             pollingMenu.DropDownItems.AddRange([_poll1MinItem, _poll5MinItem, _poll10MinItem, _poll30MinItem]);
             SetPollingIntervalChecked(setting.PollingIntervalSeconds);
@@ -103,16 +94,7 @@ namespace NotionDeadlineFairy.Services
                 CheckOnClick = true,
                 Checked = setting.IsEditMode
             };
-            _editModeItem.CheckedChanged += (_, _) =>
-            {
-                bool enabled = _editModeItem.Checked;
-
-                SettingService.Instance.Current.IsEditMode = enabled;
-                SettingService.Instance.Save();
-
-                List<IWidget> views = ServiceLocator.Instance.GetService<IWidget>();
-                views?.ForEach(v => v.SetEditMode(enabled));
-            };
+            _editModeItem.CheckedChanged += OnEditModeChanged;
             trayMenu.Items.Add(_editModeItem);
 
             // 5. Refresh now
@@ -128,25 +110,26 @@ namespace NotionDeadlineFairy.Services
                 CheckOnClick = true,
                 Checked = setting.IsClickThrough
             };
-            _clickThroughItem.CheckedChanged += (_, _) =>
-            {
-                var enabled = _clickThroughItem.Checked;
-                SettingService.Instance.Current.IsClickThrough = enabled;
-                SettingService.Instance.Save();
-                var views = ServiceLocator.Instance.GetService<IWidget>();
-                views?.ForEach(v => v.SetClickThrough(enabled));
-            };
+            _clickThroughItem.CheckedChanged += OnClickThroughChanged;
             trayMenu.Items.Add(_clickThroughItem);
 
             trayMenu.Items.Add(new Forms.ToolStripSeparator());
 
             // 7. Database edit
-            trayMenu.Items.Add("데이터베이스 편집", null, (_, _) => callbacks.OnDatabaseEditRequested());
+            trayMenu.Items.Add("데이터베이스 편집", null, (_, _) =>
+            {
+                var navigation = ServiceLocator.Instance.GetService<INavigation>()?.FirstOrDefault();
+                navigation?.OpenDatabaseEdit();
+            });
 
             trayMenu.Items.Add(new Forms.ToolStripSeparator());
 
             // Exit
-            trayMenu.Items.Add("종료", null, (_, _) => callbacks.OnExitRequested());
+            trayMenu.Items.Add("종료", null, (_, _) =>
+            {
+                var app = ServiceLocator.Instance.GetService<INavigation>()?.FirstOrDefault();
+                app?.Quit();
+            });
 
             _trayIcon = new Forms.NotifyIcon
             {
@@ -164,12 +147,73 @@ namespace NotionDeadlineFairy.Services
             if (_bottommostItem is not null) _bottommostItem.Checked = mode == WindowMode.Bottommost;
         }
 
+        private void OnWindowModeChanged(WindowMode mode)
+        {
+            SettingService.Instance.Current.WindowMode = mode;
+            SettingService.Instance.Save();
+
+            var widgets = ServiceLocator.Instance.GetService<IWidget>();
+            widgets?.ForEach(w => w.SetWindowMode(mode));
+        }
+
         private void SetPollingIntervalChecked(int seconds)
         {
             if (_poll1MinItem is not null) _poll1MinItem.Checked = seconds == 60;
             if (_poll5MinItem is not null) _poll5MinItem.Checked = seconds == 300;
             if (_poll10MinItem is not null) _poll10MinItem.Checked = seconds == 600;
             if (_poll30MinItem is not null) _poll30MinItem.Checked = seconds == 1800;
+
+            SettingService.Instance.Current.PollingIntervalSeconds = seconds;
+            SettingService.Instance.Save();
+        }
+
+        private void OnAutoStartChanged(object? sender, EventArgs e)
+        {
+            if (_autoStartItem is null) return;
+
+            var enabled = _autoStartItem.Checked;
+            SettingService.Instance.Current.AutoStart = enabled;
+            SettingService.Instance.Save();
+
+            using var key = Registry.CurrentUser.OpenSubKey(
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+            if (key is null) return;
+
+            const string appName = "NotionDeadlineFairy";
+            if (enabled)
+            {
+                var exePath = Environment.ProcessPath;
+                if (exePath is not null)
+                    key.SetValue(appName, exePath);
+            }
+            else
+            {
+                key.DeleteValue(appName, false);
+            }
+        }
+
+        private void OnEditModeChanged(object? sender, EventArgs e)
+        {
+            if (_editModeItem is null) return;
+
+            var enabled = _editModeItem.Checked;
+            SettingService.Instance.Current.IsEditMode = enabled;
+            SettingService.Instance.Save();
+
+            var views = ServiceLocator.Instance.GetService<IWidget>();
+            views?.ForEach(v => v.SetEditMode(enabled));
+        }
+
+        private void OnClickThroughChanged(object? sender, EventArgs e)
+        {
+            if (_clickThroughItem is null) return;
+
+            var enabled = _clickThroughItem.Checked;
+            SettingService.Instance.Current.IsClickThrough = enabled;
+            SettingService.Instance.Save();
+
+            var views = ServiceLocator.Instance.GetService<IWidget>();
+            views?.ForEach(v => v.SetClickThrough(enabled));
         }
 
         public void Dispose()
