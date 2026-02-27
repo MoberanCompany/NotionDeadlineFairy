@@ -22,6 +22,7 @@ namespace NotionDeadlineFairy.ViewModels
             {
                 DatabaseConfigs.Add(new NotionConfig
                 {
+                    Name = "",
                     ApiToken = "",
                     DatabaseUrl = ""
                 });
