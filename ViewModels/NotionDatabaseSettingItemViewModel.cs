@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NotionDeadlineFairy.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -113,6 +114,22 @@ namespace NotionDeadlineFairy.ViewModels
         }
 
 
+        private string _filterOption = "";
+        public string FilterOption
+        {
+            get
+            {
+                return this._filterOption;
+            }
+            set
+            {
+                if (this._filterOption != value)
+                {
+                    this._filterOption = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private string _resultMessage = "";
         public string ResultMessage
@@ -130,5 +147,37 @@ namespace NotionDeadlineFairy.ViewModels
                 }
             }
         }
+    }
+
+
+    public static class NotionDatabaseSettingExtension
+    {
+        public static NotionConfig GetConfig(this NotionDatabaseSettingItemViewModel vm)
+        {
+            return new NotionConfig()
+            {
+                ApiToken = vm.ApiKey,
+                DatabaseUrl = vm.DatabaseUrl,
+                Name = vm.Name,
+                EndDatePropertyName = vm.EndDatePropertyName,
+                ShowingProperties = vm.ShowingProperties.Split(",").Select(x => x.Trim()).ToList(),
+                TextFilter = vm.FilterOption,
+            };
+        }
+
+
+        public static NotionDatabaseSettingItemViewModel ToVm(this NotionConfig config)
+        {
+            return new NotionDatabaseSettingItemViewModel()
+            {
+                ApiKey = config.ApiToken,
+                DatabaseUrl = config.DatabaseUrl,
+                Name = config.Name,
+                EndDatePropertyName = config.EndDatePropertyName,
+                ShowingProperties = string.Join(',', config.ShowingProperties),
+                FilterOption = config.TextFilter,
+            };
+        }
+
     }
 }
