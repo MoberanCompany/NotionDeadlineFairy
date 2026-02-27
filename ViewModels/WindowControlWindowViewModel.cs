@@ -52,7 +52,7 @@ namespace NotionDeadlineFairy.ViewModels
                     OnPropertyChanged();
                     if (_isEditMode == false)
                     {
-                        SaveCurrentPosition();
+                        SaveCurrentSettings();
                     }
                 }
             }
@@ -62,27 +62,26 @@ namespace NotionDeadlineFairy.ViewModels
         public WindowControlWindowViewModel()
         {
             var settings = getCurrentSettings();
+            IsEditMode = settings.IsEditMode;
             Width = settings.WindowWidth;
             Height = settings.WindowHeight;
             Top = settings.WindowTop;
             Left = settings.WindowLeft;
-            BackgroundColor = settings.BackgroundColor;
-            ForegroundColor = settings.ForegroundColor;
         }
 
         private AppSetting getCurrentSettings()
         {
             return SettingService.Instance.Current;
         }
-        private void SaveCurrentPosition()
+        private void SaveCurrentSettings()
         {
+            ThemeService.Instance.ApplyTheme(this.BackgroundColor, this.ForegroundColor);
+
             var settings = getCurrentSettings();
             settings.WindowWidth = this.Width;
             settings.WindowHeight = this.Height;
             settings.WindowLeft = this.Left;
             settings.WindowTop = this.Top;
-            settings.BackgroundColor = this.BackgroundColor;
-            settings.ForegroundColor = this.ForegroundColor;
 
             SettingService.Instance.Save();
 

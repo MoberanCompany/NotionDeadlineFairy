@@ -45,6 +45,27 @@ namespace NotionDeadlineFairy
                 OnDatabaseEditRequested = OpenDatabaseEdit,
                 OnExitRequested = () => Shutdown(),
             });
+
+
+            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor);
+            ThemeService.Instance.ThemeChanged += OnThemeChanged;
+        }
+
+        private void OnThemeChanged(string backgroundColorCode, string foregroundColorCode)
+        {
+            SettingService.Instance.Current.BackgroundColor = backgroundColorCode;
+            SettingService.Instance.Current.ForegroundColor = foregroundColorCode;
+            SettingService.Instance.Save();
+            ApplyTheme(backgroundColorCode, foregroundColorCode);
+        }
+
+        private void ApplyTheme(string backgroundColorCode, string foregroundColorCode)
+        {
+            if (_windowControlWindow != null && _windowControlWindow.DataContext is WindowControlWindowViewModel vm)
+            {
+                vm.BackgroundColor = backgroundColorCode;
+                vm.ForegroundColor = foregroundColorCode;
+            }
         }
 
         private void OnWindowModeChanged(WindowMode mode)
@@ -115,8 +136,11 @@ namespace NotionDeadlineFairy
 
         private void ApplyEditMode(bool enabled)
         {
-            if (_mainWindow is null) return;
-            _mainWindow.ResizeMode = enabled ? ResizeMode.CanResizeWithGrip : ResizeMode.NoResize;
+            if (_windowControlWindow is null) return;
+            if(_windowControlWindow.DataContext is WindowControlWindowViewModel vm)
+            {
+                vm.IsEditMode = enabled;
+            }
         }
 
         private void OnRefreshRequested()
