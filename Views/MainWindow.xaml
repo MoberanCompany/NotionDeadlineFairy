@@ -151,8 +151,8 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
-        <Grid>
+    <Grid >
+        <Grid Background="#01000000">
             <ScrollViewer VerticalScrollBarVisibility="Hidden" 
           HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl ItemsSource="{Binding TaskList}">
@@ -209,10 +209,10 @@
                             <StackPanel Grid.Column="1" Margin="5,0,0,0">
                                 <TextBlock Text="폰트 패밀리" Foreground="#AAAAAA" FontSize="10" Margin="2,0,0,3"/>
                                 <ComboBox ItemsSource="{Binding SystemFonts}"
-          SelectedItem="{Binding SelectedFontFamily}"
-          Style="{StaticResource ModernComboBox}"
-          Height="32" 
-          MaxDropDownHeight="300">
+                                          SelectedItem="{Binding SelectedFontFamily}"
+                                          Style="{StaticResource ModernComboBox}"
+                                          Height="32" 
+                                          MaxDropDownHeight="300">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding Source}" FontFamily="{Binding}" FontSize="13" VerticalAlignment="Center"/>
