@@ -8,7 +8,8 @@ namespace NotionDeadlineFairy.Models
     {
         public required string ApiToken { get; set; }
         public required string DatabaseUrl { get; set; }
-        public string DatePropertyName { get; set; } = "";
+        public string EndDatePropertyName { get; set; } = "";
         public string TextFilter { get; set; } = "";
+        public List<string> ShowingProperties { get; set; } = new();
     }
 }
