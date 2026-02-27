@@ -15,6 +15,6 @@ namespace NotionDeadlineFairy.Abstractions
         void SetClickThrough(bool enabled) { }
         void SetWindowMode(WindowMode mode) { }
         void Refresh() { }
-        void ReDraw();
+        void ReDraw() { }
     }
 }
