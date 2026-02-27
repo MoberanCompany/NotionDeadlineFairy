@@ -6,6 +6,7 @@ namespace NotionDeadlineFairy.Models
 {
     public class NotionPageData
     {
+        public string DatabaseTitle { get; set; } = "";
         public required string Url { get; set; }
         public required string Title { get; set; }
         public DateTime? EndAt { get; set; }
