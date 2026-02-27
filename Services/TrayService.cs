@@ -89,7 +89,16 @@ namespace NotionDeadlineFairy.Services
                 CheckOnClick = true,
                 Checked = setting.IsEditMode
             };
-            _editModeItem.CheckedChanged += OnEditModeChanged;
+            _editModeItem.CheckedChanged += (_, _) =>
+            {
+                bool enabled = _editModeItem.Checked;
+
+                SettingService.Instance.Current.IsEditMode = enabled;
+                SettingService.Instance.Save();
+
+                List<IWidget>? views = ServiceLocator.Instance.GetService<IWidget>();
+                views?.ForEach(v => v.SetEditMode(enabled));
+            };
             trayMenu.Items.Add(_editModeItem);
 
             // 5. Refresh now

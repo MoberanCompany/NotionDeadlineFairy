@@ -80,12 +80,25 @@ namespace NotionDeadlineFairy
 
             var setting = SettingService.Instance.Current;
 
+            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor, setting.FontSize, setting.FontFamily);
+            //ApplyWindowMode(setting.WindowMode);
+
             _trayService = new TrayService();
             _trayService.Initialize();
+
+            
+            ApplyEditMode(setting.IsEditMode);
 
             PollingService.Instance.Start(setting.PollingIntervalSeconds);
         }
 
+        private void ApplyEditMode(bool IsEditMode)
+        {
+            if(_mainWindow != null && _mainWindow.DataContext is MainViewModel vm)
+            {
+                vm.IsEditMode = IsEditMode;
+            }
+        }
 
         protected override void OnExit(ExitEventArgs e)
         {
@@ -106,6 +119,40 @@ namespace NotionDeadlineFairy
         private void _mainWindow_SourceInitialized(object? sender, EventArgs e)
         {
             _hwndSource = (HwndSource)PresentationSource.FromVisual(_mainWindow);
+            _hwndSource.AddHook(WndProc);
+        }
+
+
+
+        private void ApplyTheme(string backgroundColorCode, string foregroundColorCode, double FontSize, string FontStyle)
+        {
+            System.Windows.Media.FontFamily font;
+
+            try
+            {
+                font = new System.Windows.Media.FontFamily(FontStyle);
+
+                if (string.IsNullOrEmpty(font.Source))
+                {
+                    font = new System.Windows.Media.FontFamily("Arial");
+                }
+            }
+            catch (Exception)
+            {
+                font = new System.Windows.Media.FontFamily("Arial");
+            }
+            if(_mainWindow != null && _mainWindow.DataContext is MainViewModel vm)
+            {
+                vm.BackgroundColor = backgroundColorCode;
+                vm.ForegroundColor = foregroundColorCode;
+                vm.FontSize = FontSize;
+                vm.SelectedFontFamily = font;
+            }
+        }
+
+        private void OnWindowModeChanged(WindowMode mode)
+        {
+            _hwndSource = (HwndSource)PresentationSource.FromVisual((Visual)_mainWindow);
             _hwndSource.AddHook(WndProc);
         }
 

@@ -68,48 +68,47 @@
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
 
-				<ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-					<ItemsControl ItemsSource="{Binding DatabaseConfigs}">
-						<ItemsControl.ItemTemplate>
-							<DataTemplate>
-								<Grid>
-									<Border
-										Margin="10,10,10,10"
-										Padding="8"
-										BorderBrush="{StaticResource ChromeBrush}"
-										BorderThickness="1"
-										CornerRadius="4">
-										<Grid>
-											<Grid.ColumnDefinitions>
-												<ColumnDefinition Width="*" />
-												<ColumnDefinition Width="Auto" />
-											</Grid.ColumnDefinitions>
-											<StackPanel Grid.Column="0">
-												<TextBlock Text="API Token" />
-												<TextBox Margin="0,2,0,6" Text="{Binding ApiToken, UpdateSourceTrigger=PropertyChanged}" />
-												<TextBlock Text="Database URL" />
-												<TextBox Margin="0,2,0,6" Text="{Binding DatabaseUrl, UpdateSourceTrigger=PropertyChanged}" />
-												<TextBlock Text="Date Property Name" />
-												<TextBox Margin="0,2,0,6" Text="{Binding EndDatePropertyName, UpdateSourceTrigger=PropertyChanged}" />
-												<TextBlock Text="Text Filter" />
-												<Grid>
-													<Grid.ColumnDefinitions>
-														<ColumnDefinition Width="*" />
-														<ColumnDefinition Width="Auto" />
-													</Grid.ColumnDefinitions>
-													<TextBox
-														Grid.Column="0"
-														Margin="0,2,0,0"
-														IsReadOnly="True"
-														Text="{Binding TextFilter, UpdateSourceTrigger=PropertyChanged}" />
-													<Button
-														Grid.Column="1"
-														Command="{Binding DataContext.EditTextFilterCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-														CommandParameter="{Binding .}"
-														Content="Edit" />
-												</Grid>
-												<TextBlock Text="Showing Properties (CSV)" />
-												<TextBox Margin="0,2,0,0" Text="{Binding ShowingProperties, UpdateSourceTrigger=PropertyChanged}" />
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding DatabaseConfigs}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Margin="0,0,0,8"
+                                    Padding="8"
+                                    BorderBrush="Gray"
+                                    BorderThickness="1"
+                                    CornerRadius="4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="API Token" />
+                                            <TextBox Margin="0,2,0,6" Text="{Binding ApiToken, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBlock Text="Database URL" />
+                                            <TextBox Margin="0,2,0,6" Text="{Binding DatabaseUrl, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBlock Text="Date Property Name" />
+                                            <TextBox Margin="0,2,0,6" Text="{Binding EndDatePropertyName, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBlock Text="Text Filter" />
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox
+    Grid.Column="0"
+    Margin="0,2,0,0"
+    IsReadOnly="True"
+    Text="{Binding FilterOption, UpdateSourceTrigger=PropertyChanged}" />
+                                                <Button
+                                                    Grid.Column="1"
+                                                    Command="{Binding DataContext.EditTextFilterCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding .}"
+                                                    Content="Edit" />
+                                            </Grid>
+                                            <TextBlock Text="Showing Properties (CSV)" />
+                                            <TextBox Margin="0,2,0,0" Text="{Binding ShowingProperties, UpdateSourceTrigger=PropertyChanged}" />
 
 												<TextBlock Text="Test Result" />
 												<Grid>

@@ -15,17 +15,8 @@ namespace NotionDeadlineFairy.Views
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            // 쉬프트 클릭 상세정보
-            if (Keyboard.Modifiers == ModifierKeys.Shift)
-            {
-                DetailPanel.Visibility = DetailPanel.Visibility == Visibility.Visible
-                    ? Visibility.Collapsed
-                    : Visibility.Visible;
-                e.Handled = true;
-            }
-
             // 컨트롤 클릭 주소 이동
-            else if (Keyboard.Modifiers == ModifierKeys.Control)
+            if (Keyboard.Modifiers == ModifierKeys.Control)
             {
                 if (this.DataContext is TaskItemViewModel vm && !string.IsNullOrEmpty(vm.Url))
                 {
