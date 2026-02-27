@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace NotionDeadlineFairy.Services
 {
@@ -25,7 +26,7 @@ namespace NotionDeadlineFairy.Services
 
         public NotionApi() { }
 
-        public List<NotionDatabaseProperty> GetDatabaseProperties(NotionConfig config)
+        public async Task<List<NotionDatabaseProperty>> GetDatabasePropertiesAsync(NotionConfig config)
         {
             ArgumentNullException.ThrowIfNull(config);
 
@@ -44,8 +45,8 @@ namespace NotionDeadlineFairy.Services
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", config.ApiToken);
             request.Headers.Add("Notion-Version", NotionVersion);
 
-            using var response = _httpClient.Send(request);
-            var payload = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            using var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+            var payload = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 throw new InvalidOperationException($"Notion API request failed ({(int)response.StatusCode}): {payload}");
@@ -76,7 +77,7 @@ namespace NotionDeadlineFairy.Services
             return properties;
         }
 
-        public List<NotionPageData> GetDatabaseItems(NotionConfig config)
+        public async Task<List<NotionPageData>> GetDatabaseItemsAsync(NotionConfig config)
         {
             ArgumentNullException.ThrowIfNull(config);
 
@@ -103,7 +104,7 @@ namespace NotionDeadlineFairy.Services
 
             if (!string.IsNullOrWhiteSpace(config.EndDatePropertyName))
             {
-                var properties = GetDatabaseProperties(config);
+                var properties = await GetDatabasePropertiesAsync(config).ConfigureAwait(false);
                 canSortByEndDateProperty = properties.Any(x =>
                     string.Equals(x.Name, config.EndDatePropertyName, StringComparison.OrdinalIgnoreCase));
             }
@@ -137,8 +138,8 @@ namespace NotionDeadlineFairy.Services
                 request.Headers.Add("Notion-Version", NotionVersion);
                 request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
-                using var response = _httpClient.Send(request);
-                var payload = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                using var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+                var payload = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new InvalidOperationException($"Notion API request failed ({(int)response.StatusCode}): {payload}");

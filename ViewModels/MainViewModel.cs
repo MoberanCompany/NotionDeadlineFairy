@@ -1,6 +1,7 @@
-ï»¿using NotionDeadlineFairy.Abstractions;
+using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Services;
+using System.Threading.Tasks;
 
 namespace NotionDeadlineFairy.ViewModels
 {
@@ -9,19 +10,18 @@ namespace NotionDeadlineFairy.ViewModels
         private readonly NotionService _notionService;
 
         private int _count = 0;
-        public int Count 
+        public int Count
         {
             get => _count;
             set
             {
-                if(this._count != value)
+                if (this._count != value)
                 {
                     this._count = value;
                     OnPropertyChanged();
                 }
             }
         }
-
 
         public RelayCommand IncrementCommand { get; }
         public RelayCommand DecrementCommand { get; }
@@ -47,20 +47,26 @@ namespace NotionDeadlineFairy.ViewModels
 
         public void Refresh()
         {
-            // TODO: ì½”ë“œ êµ¬í˜„
+            // TODO: ÄÚµå ±¸Çö
             // throw new NotImplementedException();
         }
 
         public void SetEditMode(bool enabled)
         {
-            // TODO: ì½”ë“œ êµ¬í˜„
+            // TODO: ÄÚµå ±¸Çö
             // throw new NotImplementedException();
         }
 
         public void SetClickThrough(bool enabled)
         {
-            // TODO: ì½”ë“œ êµ¬í˜„
+            // TODO: ÄÚµå ±¸Çö
             // throw new NotImplementedException();
+            _ = InitializeAsync();
+        }
+
+        private async Task InitializeAsync()
+        {
+            var list = await this._notionService.GetAllDatabaseItemsAsync();
         }
     }
 }
