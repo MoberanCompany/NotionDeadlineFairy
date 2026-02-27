@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NotionDeadlineFairy.Services
 {
@@ -11,7 +12,8 @@ namespace NotionDeadlineFairy.Services
         private static string SettingFilePath => Path.Combine(AppContext.BaseDirectory, "appsetting.json");
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
-            WriteIndented = true
+            WriteIndented = true,
+            Converters = { new JsonStringEnumConverter() }
         };
 
         private static readonly Lazy<SettingService> _instance =
@@ -64,14 +66,22 @@ namespace NotionDeadlineFairy.Services
     public class AppSetting
     {
         public List<NotionConfig> DatabaseConfigs { get; set; } = new List<NotionConfig>();
-        public bool IsTopmost { get; set; } = true;
+        public WindowMode WindowMode { get; set; } = WindowMode.Topmost;
+        public bool AutoStart { get; set; } = false;
+        public int PollingIntervalSeconds { get; set; } = 300;
+        public bool IsEditMode { get; set; } = false;
+        public bool IsClickThrough { get; set; } = false;
 
         public static AppSetting CreateDefault()
         {
             return new AppSetting
             {
                 DatabaseConfigs = new List<NotionConfig>(),
-                IsTopmost = true,
+                WindowMode = WindowMode.Topmost,
+                AutoStart = false,
+                PollingIntervalSeconds = 300,
+                IsEditMode = false,
+                IsClickThrough = false,
             };
         }
     }

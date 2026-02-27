@@ -6,14 +6,22 @@
     xmlns:local="clr-namespace:NotionDeadlineFairy"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:NotionDeadlineFairy.ViewModels"
+    WindowStyle="None"
+    AllowsTransparency="True"
+    Background="{x:Null}"
+    Topmost="True"
+    ShowInTaskbar="False"
+    ShowActivated="False"   
     Title="MainWindow"
     Width="800"
     Height="450"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
-    mc:Ignorable="d">
-    <Grid>
+    mc:Ignorable="d"
+    >
+    <Grid Background="#66000000"
+          IsHitTestVisible="False">
         <WrapPanel>
-            <TextBlock Width="50" Text="{Binding Count}" />
+            <TextBlock Width="50" Text="{Binding Count}" Foreground="Red" />
             <Button
                 Width="50"
                 Command="{Binding IncrementCommand}"
