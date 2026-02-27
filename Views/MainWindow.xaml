@@ -3,12 +3,12 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:NotionDeadlineFairy"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:NotionDeadlineFairy.ViewModels"
+    xmlns:views="clr-namespace:NotionDeadlineFairy.Views"
     WindowStyle="None"
     AllowsTransparency="True"
-    Background="{x:Null}"
+    Background="Transparent"
     Topmost="True"
     ShowInTaskbar="False"
     ShowActivated="False"   
@@ -17,6 +17,8 @@
     Height="{Binding Height, Mode=TwoWay}"
     Top="{Binding Top, Mode=TwoWay}"
     Left="{Binding Left, Mode=TwoWay}"
+    HorizontalAlignment="Right"
+    VerticalAlignment="Top"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
     mc:Ignorable="d">
 
@@ -151,7 +153,23 @@
     </Window.Resources>
 
     <Grid>
-        <ContentControl x:Name="MainContentFrame" />
+        <Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" 
+          HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding TaskList}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <views:TaskCardView Margin="5,5,5,8"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Top"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
 
         <Grid x:Name="OverlayLayer" Background="#50000000" Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
 
@@ -221,7 +239,7 @@
                 <Border Width="40" Height="40" Background="#FF4A90E2" CornerRadius="5" Cursor="SizeAll" MouseLeftButtonDown="DragHandle_MouseLeftButtonDown">
                     <TextBlock Text="✥" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
                 </Border>
-                <Border Width="40" Height="40" Background="#FF2ECC71" CornerRadius="5" Margin="10,0,0,0" Cursor="Hand" MouseLeftButtonDown="OpenSettings_Click">
+                <Border Width="40" Height="40" Background="#FF2ECC71" CornerRadius="5" Margin="10,0,0,0" Cursor="Hand" MouseLeftButtonDown="ToggleSettings_Click">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>
                         <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>

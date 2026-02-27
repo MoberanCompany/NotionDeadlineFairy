@@ -1,7 +1,13 @@
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Services;
 using System.Text.RegularExpressions;
+using NotionDeadlineFairy.Models;
+using Microsoft.VisualBasic.Logging;
+using NotionDeadlineFairy.Utils;
 
 using System.Windows.Media; // FontFamily 사용을 위해 필요
 using System.Collections.Generic;
@@ -13,18 +19,11 @@ namespace NotionDeadlineFairy.ViewModels
     {
         private readonly NotionService _notionService;
 
-        private int _count = 0;
-        public int Count
+        private ObservableCollection<TaskItemViewModel> _taskList;
+        public ObservableCollection<TaskItemViewModel> TaskList
         {
-            get => _count;
-            set
-            {
-                if (this._count != value)
-                {
-                    this._count = value;
-                    OnPropertyChanged();
-                }
-            }
+            get => _taskList;
+            set { _taskList = value; OnPropertyChanged(); }
         }
 
         private bool _isEditMode;
@@ -99,20 +98,11 @@ namespace NotionDeadlineFairy.ViewModels
 
         public MainViewModel()
         {
-            this._notionService = NotionService.Instance;
-
-            IncrementCommand = new RelayCommand((arg) =>
-            {
-                Count++;
-            });
-
-            DecrementCommand = new RelayCommand((arg) =>
-            {
-                Count--;
-            });
+            _notionService = NotionService.Instance;
+            TaskList = new ObservableCollection<TaskItemViewModel>();
 
             Refresh();
-
+            
             ServiceLocator.Instance.Register<IWidget>(this);
 
             var settings = SettingService.Instance.Current;
@@ -125,9 +115,31 @@ namespace NotionDeadlineFairy.ViewModels
 
         public void Refresh()
         {
-            // TODO: 코드 구현
-            // throw new NotImplementedException();
-            _ = InitializeAsync();
+            var settings = SettingService.Instance.Current;
+
+            if (settings == null || settings.DatabaseConfigs.Count == 0)
+            {
+                TaskList = new ObservableCollection<TaskItemViewModel>();
+                return;
+            }
+
+            Task.Run(async () =>
+            {
+                var rawData = await _notionService.GetAllDatabaseItemsAsync();
+
+                DispatcherHelper.BeginInvoke(() =>
+                {
+                    if (rawData != null && rawData.Any())
+                    {
+                        var vms = rawData.Select(d => new TaskItemViewModel(d));
+                        TaskList = new ObservableCollection<TaskItemViewModel>(vms);
+                    }
+                    else
+                    {
+                        TaskList = new ObservableCollection<TaskItemViewModel>();
+                    }
+                });
+            });
         }
 
         public void SetEditMode(bool enabled)
