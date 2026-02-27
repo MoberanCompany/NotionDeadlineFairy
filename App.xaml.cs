@@ -85,6 +85,7 @@ namespace NotionDeadlineFairy
             ApplyTheme(SettingService.Instance.Current.BackgroundColor, SettingService.Instance.Current.ForegroundColor);
             ApplyEditMode(SettingService.Instance.Current.IsEditMode);
             ThemeService.Instance.ThemeChanged += OnThemeChanged;
+            PollingService.Instance.Start(setting.PollingIntervalSeconds);
         }
 
 
@@ -171,6 +172,7 @@ namespace NotionDeadlineFairy
                 RestoreToLastState();
             else
                 _lastNonMinimized = _mainWindow.WindowState;
+            PollingService.Instance.UpdateInterval(seconds);
         }
 
 
@@ -210,7 +212,11 @@ namespace NotionDeadlineFairy
 
         public void Quit()
         {
-            System.Windows.Application.Current.Shutdown();
+            PollingService.Instance.Stop();
+            SettingService.Instance.Save();
+            _trayService?.Dispose();
+            _trayService = null;
+            base.OnExit(e);
         }
         #endregion
 

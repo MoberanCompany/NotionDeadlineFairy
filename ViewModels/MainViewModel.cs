@@ -1,7 +1,7 @@
 using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Services;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace NotionDeadlineFairy.ViewModels
 {
@@ -46,6 +46,7 @@ namespace NotionDeadlineFairy.ViewModels
         private double _height = 500;
         private double _left = 300;
         private double _top = 300;
+
         public double Width
         {
             get => _width;
@@ -67,6 +68,13 @@ namespace NotionDeadlineFairy.ViewModels
             set { _top = value; OnPropertyChanged(); }
         }
 
+
+        private string _backgroundColor = "#FFFFFFFF";
+        private string _foregroundColor = "#000000FF";
+        public string BackgroundColor { get => _backgroundColor; set { if (_backgroundColor == value) return;  _backgroundColor = value; OnPropertyChanged(); EnabledSave = ValidateColor(value) && ValidateColor(ForegroundColor); } }
+        public string ForegroundColor { get => _foregroundColor; set { if (_foregroundColor == value) return;  _foregroundColor = value; OnPropertyChanged(); EnabledSave = ValidateColor(value) && ValidateColor(BackgroundColor); } }
+        private bool _enabledSave = false;
+        public bool EnabledSave { get => _enabledSave; set { if (_enabledSave == value) return; _enabledSave = value; OnPropertyChanged(); } }
 
         public RelayCommand IncrementCommand { get; }
         public RelayCommand DecrementCommand { get; }
@@ -94,6 +102,8 @@ namespace NotionDeadlineFairy.ViewModels
             this.Height = settings.WindowHeight;
             this.Left = settings.WindowLeft;
             this.Top = settings.WindowTop;
+            this.BackgroundColor = settings.BackgroundColor;
+            this.ForegroundColor = settings.ForegroundColor;
         }
 
         public void Refresh()
@@ -131,6 +141,23 @@ namespace NotionDeadlineFairy.ViewModels
             settings.WindowHeight = this.Height;
             settings.WindowLeft = this.Left;
             settings.WindowTop = this.Top;
+
+            SettingService.Instance.Save();
+        }
+
+        private bool ValidateColor(string hex)
+        {
+            string hexPattern = @"^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$";
+            return Regex.IsMatch(hex, hexPattern);
+        }
+
+
+        public void SaveCurrentColor()
+        {
+            var settings = SettingService.Instance.Current;
+
+            settings.BackgroundColor = this.BackgroundColor;
+            settings.ForegroundColor = this.ForegroundColor;
 
             SettingService.Instance.Save();
         }

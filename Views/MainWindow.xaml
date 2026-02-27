@@ -45,6 +45,23 @@
         <Grid x:Name="OverlayLayer"
            Background="#50000000" 
          Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
+            <Grid x:Name="SettingsModal" 
+      Background="#AA000000" 
+      Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVisibility}}">
+                <Border Background="#2D2D2D" CornerRadius="10" Width="200" Padding="15" VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="배경색 (Hex)" Foreground="White" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="글자색 (Hex)" Foreground="White" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15"/>
+
+                        <Button Content="저장" IsEnabled="{Binding EnabledSave}" Click="SaveColor_Click" />
+                        <Button Content="닫기" Click="CloseSettings_Click"></Button>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
             <StackPanel HorizontalAlignment="Right" 
              VerticalAlignment="Top" 
              Margin="15" 
@@ -64,7 +81,8 @@
              CornerRadius="5"
              Margin="10,0,0,0"
              Cursor="Hand"
-             ToolTip="UI 설정 메뉴">
+             ToolTip="UI 설정 메뉴"
+                        MouseLeftButtonDown="OpenSettings_Click">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>
                         <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>
