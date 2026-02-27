@@ -16,7 +16,7 @@ namespace NotionDeadlineFairy.Services
 
         public NotionService() { }
 
-        public List<NotionPage> GetAllDatabaseItems()
+        public List<NotionPageData> GetAllDatabaseItems()
         {
             var db1 = _notionAPI.GetDatabaseItems("", "");
             var db2 = _notionAPI.GetDatabaseItems("", "");
