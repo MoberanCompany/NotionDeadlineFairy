@@ -10,9 +10,12 @@ namespace NotionDeadlineFairy.Views
     /// </summary>
     public partial class WindowControlWindow : Window
     {
+        private WindowControlWindowViewModel _vm;
         public WindowControlWindow()
         {
             InitializeComponent();
+            _vm = new WindowControlWindowViewModel();
+            DataContext = _vm;
         }
 
         private void DragHandle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

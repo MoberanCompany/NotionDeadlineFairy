@@ -1,0 +1,120 @@
+<Window
+    x:Class="NotionDeadlineFairy.Views.SettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:NotionDeadlineFairy.ViewModels"
+    Title="데이터베이스 편집"
+    Width="500"
+    Height="450"
+    d:DataContext="{d:DesignInstance Type=viewModels:SettingsViewModel}"
+    ResizeMode="NoResize"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <GroupBox
+            Grid.Row="0"
+            Padding="8"
+            Header="데이터베이스 설정">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding DatabaseConfigs}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Margin="0,0,0,8"
+                                    Padding="8"
+                                    BorderBrush="Gray"
+                                    BorderThickness="1"
+                                    CornerRadius="4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="API Token" />
+                                            <TextBox Margin="0,2,0,6" Text="{Binding ApiToken, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBlock Text="Database URL" />
+                                            <TextBox Margin="0,2,0,6" Text="{Binding DatabaseUrl, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBlock Text="Date Property Name" />
+                                            <TextBox Margin="0,2,0,6" Text="{Binding EndDatePropertyName, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBlock Text="Text Filter" />
+                                            <TextBox Margin="0,2,0,0" Text="{Binding TextFilter, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Test Result" />
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox
+                                                    Grid.Column="0"
+                                                    Margin="0,2,0,0"
+                                                    Text="{Binding ResultMessage, UpdateSourceTrigger=PropertyChanged}" />
+                                                <Button
+                                                    Grid.Column="1"
+                                                    Command="{Binding DataContext.TestFetchCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding .}"
+                                                    Content="Test" />
+                                            </Grid>
+
+                                        </StackPanel>
+                                        <Button
+                                            Grid.Column="1"
+                                            Width="24"
+                                            Height="24"
+                                            Margin="8,0,0,0"
+                                            VerticalAlignment="Top"
+                                            Command="{Binding DataContext.RemoveConfigCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"
+                                            Content="✕" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <Button
+                    Grid.Row="1"
+                    Margin="0,8,0,0"
+                    Padding="16,4"
+                    HorizontalAlignment="Left"
+                    Command="{Binding AddConfigCommand}"
+                    Content="추가" />
+            </Grid>
+        </GroupBox>
+
+        <StackPanel
+            Grid.Row="1"
+            Margin="0,12,0,0"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+            <Button
+                Width="80"
+                Padding="8,4"
+                Command="{Binding SaveCommand}"
+                Content="저장"
+                IsDefault="True" />
+            <Button
+                Width="80"
+                Margin="8,0,0,0"
+                Padding="8,4"
+                Click="OnCloseClick"
+                Content="닫기"
+                IsCancel="True" />
+        </StackPanel>
+    </Grid>
+</Window>

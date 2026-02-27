@@ -4,12 +4,12 @@ using System.Text;
 
 namespace NotionDeadlineFairy.Models
 {
-    public class NotionPage
+    public class NotionPageData
     {
+        public string DatabaseTitle { get; set; } = "";
         public required string Url { get; set; }
         public required string Title { get; set; }
-        public DateTime? End { get; set; }
-        public string? User { get; set; }
-        public string? State { get; set; }
+        public DateTime? EndAt { get; set; }
+        public Dictionary<string, NotionField> Values { get; set; } = new();
     }
 }
