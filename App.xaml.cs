@@ -4,6 +4,7 @@ using NotionDeadlineFairy.Services;
 using NotionDeadlineFairy.Utils;
 using NotionDeadlineFairy.Views;
 using System.Runtime.InteropServices;
+using NotionDeadlineFairy.ViewModels;
 using System.Windows;
 using System.Windows.Interop;
 
@@ -15,6 +16,7 @@ namespace NotionDeadlineFairy
         private TrayService? _trayService;
         private SettingsWindow? _settingsWindow;
         private MainWindow? _mainWindow;
+
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -39,6 +41,26 @@ namespace NotionDeadlineFairy
                 OnDatabaseEditRequested = OpenDatabaseEdit,
                 OnExitRequested = () => Shutdown(),
             });
+
+
+            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor);
+            ApplyEditMode(setting.IsEditMode);
+            ThemeService.Instance.ThemeChanged += OnThemeChanged;
+            PollingService.Instance.Start(setting.PollingIntervalSeconds);
+        }
+
+        private void OnThemeChanged(string backgroundColorCode, string foregroundColorCode)
+        {
+            SettingService.Instance.Current.BackgroundColor = backgroundColorCode;
+            SettingService.Instance.Current.ForegroundColor = foregroundColorCode;
+            SettingService.Instance.Save();
+            ApplyTheme(backgroundColorCode, foregroundColorCode);
+        }
+
+
+        private void ApplyTheme(string backgroundColorCode, string foregroundColorCode)
+        {
+
         }
 
         private void OnWindowModeChanged(WindowMode mode)
@@ -98,6 +120,40 @@ namespace NotionDeadlineFairy
         {
             SettingService.Instance.Current.PollingIntervalSeconds = seconds;
             SettingService.Instance.Save();
+            PollingService.Instance.UpdateInterval(seconds);
+        }
+
+        private void OnEditModeChanged(bool enabled)
+        {
+            SettingService.Instance.Current.IsEditMode = enabled;
+            SettingService.Instance.Save();
+            //ApplyEditMode(enabled);
+        }
+
+        private void ApplyEditMode(bool enabled)
+        {
+            if (_mainWindow is null) return;
+            if(_mainWindow.DataContext is MainViewModel vm)
+            {
+                vm.IsEditMode = enabled;
+            }
+        }
+
+        private void OnRefreshRequested()
+        {
+            // TODO: 데이터 새로고침 로직 구현
+        }
+
+        private void OnClickThroughChanged(bool enabled)
+        {
+            SettingService.Instance.Current.IsClickThrough = enabled;
+            SettingService.Instance.Save();
+            ApplyClickThrough(enabled);
+        }
+
+        private void ApplyClickThrough(bool enabled)
+        {
+            _mainWindow?.SetClickThrough(enabled);
         }
 
         private void OpenDatabaseEdit()
@@ -114,6 +170,7 @@ namespace NotionDeadlineFairy
 
         protected override void OnExit(ExitEventArgs e)
         {
+            PollingService.Instance.Stop();
             SettingService.Instance.Save();
             _trayService?.Dispose();
             _trayService = null;

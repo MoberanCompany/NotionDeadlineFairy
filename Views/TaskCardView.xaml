@@ -29,21 +29,24 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Text="{Binding Title}" 
-                           FontSize="13" FontWeight="Bold" Foreground="#333333"
+                           FontSize="13" FontWeight="Bold" 
+                           Foreground="{Binding DataContext.ForegroundColor, RelativeSource={RelativeSource AncestorType=Window}}"
                            TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,0,0,4"/>
 
-                <Border Grid.Row="1" Background="#F8F9FA" CornerRadius="4" Padding="6,4"
+                <Border Grid.Row="1"  CornerRadius="4" Padding="6,4"
                         Visibility="{Binding HasDeadline, Converter={StaticResource BoolToVis}}">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <TextBlock Text="⏰" Margin="0,0,6,0" VerticalAlignment="Center" FontSize="11"/>
+
                         <TextBlock x:Name="TimerDisplay" FontFamily="Consolas" FontWeight="ExtraBold"
                                    Text="{Binding RemainingTimeText}" 
-                                   Foreground="{Binding EndAt, Converter={StaticResource DeadlineStyleConv}, ConverterParameter=Color}"
-                                   FontSize="{Binding EndAt, Converter={StaticResource DeadlineStyleConv}, ConverterParameter=Size}"/>
+                                  />
                     </StackPanel>
                 </Border>
 
-                <TextBlock Grid.Row="2" Text="{Binding DatabaseTitle}" FontSize="8" Foreground="#BBBBBB" 
+                <TextBlock Grid.Row="2" Text="{Binding DatabaseTitle}" FontSize="8" 
+                           Foreground="{Binding DataContext.ForegroundColor, RelativeSource={RelativeSource AncestorType=Window}}"
+                           Opacity="0.5"
                            HorizontalAlignment="Right" Margin="0,4,2,0"/>
             </Grid>
 
@@ -56,8 +59,10 @@
                                     <ColumnDefinition Width="80"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding Key}" FontSize="10" Foreground="#888" FontWeight="SemiBold"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Value.Value}" FontSize="10" Foreground="#444" TextAlignment="Right" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Key}" FontSize="10" FontWeight="SemiBold"
+                                           Foreground="{Binding DataContext.ForegroundColor, RelativeSource={RelativeSource AncestorType=Window}}" Opacity="0.6"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Value.Value}" FontSize="10" TextAlignment="Right" TextWrapping="Wrap"
+                                           Foreground="{Binding DataContext.ForegroundColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

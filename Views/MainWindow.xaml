@@ -12,29 +12,110 @@
     Topmost="True"
     ShowInTaskbar="False"
     ShowActivated="False"   
-    Title="Notion Deadline Fairy"
-    Width="320"
-    Height="600" 
+    Title="MainWindow"
+    Width="{Binding Width, Mode=TwoWay}"
+    Height="{Binding Height, Mode=TwoWay}"
+    Top="{Binding Top, Mode=TwoWay}"
+    Left="{Binding Left, Mode=TwoWay}"
     HorizontalAlignment="Right"
     VerticalAlignment="Top"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    >
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </Window.Resources>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" 
+                      GlassFrameThickness="1" 
+                      CornerRadius="0"
+                      ResizeBorderThickness="5"
+                      UseAeroCaptionButtons="False"  />
+    </WindowChrome.WindowChrome>
+    <Window.Style>
+        <Style TargetType="Window">
+            <Setter Property="ResizeMode" Value="NoResize" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                    <Setter Property="ResizeMode" Value="CanResize"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Style>
+    <Grid>
+        <Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" 
+                  HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding TaskList}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <views:TaskCardView Margin="5,5,5,8"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Top"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+        <Grid x:Name="OverlayLayer"
+           Background="#50000000" 
+         Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
+            <Grid x:Name="SettingsModal" 
+      Background="#AA000000" 
+      Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVisibility}}">
+                <Border Background="#2D2D2D" CornerRadius="10" Width="200" Padding="15" VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="배경색 (Hex)" Foreground="White" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15"/>
 
-    <Grid Background="White">
-        <ScrollViewer VerticalScrollBarVisibility="Hidden" 
-                      HorizontalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding TaskList}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <views:TaskCardView Margin="5,5,5,8"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Top"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </ScrollViewer>
+                        <TextBlock Text="글자색 (Hex)" Foreground="White" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15"/>
+
+                        <Button Content="저장" IsEnabled="{Binding EnabledSave}" Click="SaveColor_Click" />
+                        <Button Content="닫기" Click="CloseSettings_Click"></Button>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <StackPanel HorizontalAlignment="Right" 
+             VerticalAlignment="Top" 
+             Margin="15" 
+             Orientation="Horizontal">
+                <Border x:Name="DragHandle"
+             Width="40" Height="40"
+             Background="#FF4A90E2"
+             CornerRadius="5"
+             Cursor="SizeAll"
+             MouseLeftButtonDown="DragHandle_MouseLeftButtonDown"
+             ToolTip="드래그하여 이동">
+                    <TextBlock Text="✥" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+                </Border>
+                <Border x:Name="FinishButton"
+             Width="40" Height="40"
+             Background="#FF2ECC71"
+             CornerRadius="5"
+             Margin="10,0,0,0"
+             Cursor="Hand"
+             ToolTip="UI 설정 메뉴"
+                        MouseLeftButtonDown="OpenSettings_Click">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>
+                        <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>
+                        <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <TextBlock Text="편집 모드" 
+            Foreground="White" 
+            Opacity="0.7"
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Bottom" 
+            Margin="0,0,0,20"
+            IsHitTestVisible="False"/>
+        </Grid>
     </Grid>
 </Window>

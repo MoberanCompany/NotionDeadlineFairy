@@ -1,9 +1,8 @@
 using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Services;
 using NotionDeadlineFairy.ViewModels;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 
 namespace NotionDeadlineFairy.Views
@@ -24,6 +23,43 @@ namespace NotionDeadlineFairy.Views
         {
             base.OnSourceInitialized(e);
             _hwndSource = (HwndSource)PresentationSource.FromVisual(this);
+        }
+
+        private void DragHandle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+
+
+                if (this.DataContext is MainViewModel vm)
+                {
+                    vm.Left = this.Left;
+                    vm.Top = this.Top;
+                }
+            }
+        }
+
+        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is MainViewModel vm)
+            {
+                vm.IsSettingsVisible = true;
+            }
+        }
+
+        private void CloseSettings_Click(object sender, RoutedEventArgs e) {
+            if (this.DataContext is MainViewModel vm) {
+                vm.IsSettingsVisible = false;
+            }
+        }
+
+        private void SaveColor_Click(object sender, RoutedEventArgs e)
+        {
+            if(this.DataContext is MainViewModel vm)
+            {
+                vm.SaveCurrentColor();
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ namespace NotionDeadlineFairy.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+
             if (value is DateTime endAt)
             {
                 // 1. 마감 기한이 없는 경우
