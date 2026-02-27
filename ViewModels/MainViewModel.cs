@@ -197,6 +197,26 @@ namespace NotionDeadlineFairy.ViewModels
             settings.FontFamily = this.SelectedFontFamily.Source;
 
             SettingService.Instance.Save();
+
+            var views = ServiceLocator.Instance.GetService<IWidget>();
+            if (views == null)
+                return;
+            foreach(var view in views)
+            {
+                try
+                {
+                    view.ReDraw();
+                }
+                catch(Exception ex)
+                {
+                    // ignore
+                }
+            }
+        }
+
+        public void ReDraw()
+        {
+            // nothing
         }
     }
 }
