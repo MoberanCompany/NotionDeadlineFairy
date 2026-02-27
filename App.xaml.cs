@@ -1,10 +1,10 @@
 ﻿using Microsoft.Win32;
 using NotionDeadlineFairy.Models;
 using NotionDeadlineFairy.Services;
+using NotionDeadlineFairy.Utils;
 using NotionDeadlineFairy.Views;
 using System.Runtime.InteropServices;
 using NotionDeadlineFairy.ViewModels;
-using NotionDeadlineFairy.Views;
 using System.Windows;
 using System.Windows.Interop;
 
@@ -16,22 +16,21 @@ namespace NotionDeadlineFairy
         private TrayService? _trayService;
         private SettingsWindow? _settingsWindow;
         private MainWindow? _mainWindow;
-        private WindowControlWindow? _windowControlWindow;
+
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            
+            DispatcherHelper.Initialize(Dispatcher);
+            
             SettingService.Instance.Load();
 
-            _windowControlWindow = new WindowControlWindow();
             _mainWindow = new MainWindow();
-            _windowControlWindow.MainContentFrame.Content = _mainWindow.Content;
-            _windowControlWindow.Show();
+            _mainWindow.Show();
 
             var setting = SettingService.Instance.Current;
             ApplyWindowMode(setting.WindowMode);
-            ApplyClickThrough(setting.IsClickThrough);
-            ApplyEditMode(setting.IsEditMode);
 
             _trayService = new TrayService();
             _trayService.Initialize(new TrayMenuCallbacks
@@ -39,15 +38,13 @@ namespace NotionDeadlineFairy
                 OnWindowModeChanged = OnWindowModeChanged,
                 OnAutoStartChanged = OnAutoStartChanged,
                 OnPollingIntervalChanged = OnPollingIntervalChanged,
-                OnEditModeChanged = OnEditModeChanged,
-                OnRefreshRequested = OnRefreshRequested,
-                OnClickThroughChanged = OnClickThroughChanged,
                 OnDatabaseEditRequested = OpenDatabaseEdit,
                 OnExitRequested = () => Shutdown(),
             });
 
 
             ApplyTheme(setting.BackgroundColor, setting.ForegroundColor);
+            ApplyEditMode(setting.IsEditMode);
             ThemeService.Instance.ThemeChanged += OnThemeChanged;
         }
 
@@ -59,13 +56,10 @@ namespace NotionDeadlineFairy
             ApplyTheme(backgroundColorCode, foregroundColorCode);
         }
 
+
         private void ApplyTheme(string backgroundColorCode, string foregroundColorCode)
         {
-            if (_windowControlWindow != null && _windowControlWindow.DataContext is WindowControlWindowViewModel vm)
-            {
-                vm.BackgroundColor = backgroundColorCode;
-                vm.ForegroundColor = foregroundColorCode;
-            }
+
         }
 
         private void OnWindowModeChanged(WindowMode mode)
@@ -131,13 +125,13 @@ namespace NotionDeadlineFairy
         {
             SettingService.Instance.Current.IsEditMode = enabled;
             SettingService.Instance.Save();
-            ApplyEditMode(enabled);
+            //ApplyEditMode(enabled);
         }
 
         private void ApplyEditMode(bool enabled)
         {
-            if (_windowControlWindow is null) return;
-            if(_windowControlWindow.DataContext is WindowControlWindowViewModel vm)
+            if (_mainWindow is null) return;
+            if(_mainWindow.DataContext is MainViewModel vm)
             {
                 vm.IsEditMode = enabled;
             }

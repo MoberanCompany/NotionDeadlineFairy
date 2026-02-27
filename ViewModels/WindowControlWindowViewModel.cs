@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NotionDeadlineFairy.ViewModels
 {
-    internal class WindowControlWindowViewModel : BaseViewModel
+    public class WindowControlWindowViewModel : BaseViewModel
     {
         private bool _isSettingsVisible = false;
         private string _backgroundColor = "#FFFFFFFF";

@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace NotionDeadlineFairy.Services
 {
@@ -25,7 +26,58 @@ namespace NotionDeadlineFairy.Services
 
         public NotionApi() { }
 
-        public List<NotionPageData> GetDatabaseItems(NotionConfig config)
+        public async Task<List<NotionDatabaseProperty>> GetDatabasePropertiesAsync(NotionConfig config)
+        {
+            ArgumentNullException.ThrowIfNull(config);
+
+            if (string.IsNullOrWhiteSpace(config.ApiToken))
+            {
+                throw new ArgumentException("Notion API token is required.", nameof(config));
+            }
+
+            var databaseId = ParseDatabaseId(config.DatabaseUrl);
+            if (string.IsNullOrWhiteSpace(databaseId))
+            {
+                throw new ArgumentException("Invalid Notion database URL.", nameof(config));
+            }
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"databases/{databaseId}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", config.ApiToken);
+            request.Headers.Add("Notion-Version", NotionVersion);
+
+            using var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+            var payload = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException($"Notion API request failed ({(int)response.StatusCode}): {payload}");
+            }
+
+            using var doc = JsonDocument.Parse(payload);
+            var root = doc.RootElement;
+            if (!root.TryGetProperty("properties", out var propertiesElement) ||
+                propertiesElement.ValueKind != JsonValueKind.Object)
+            {
+                return new List<NotionDatabaseProperty>();
+            }
+
+            var properties = new List<NotionDatabaseProperty>();
+            foreach (var property in propertiesElement.EnumerateObject())
+            {
+                var type = property.Value.TryGetProperty("type", out var typeElement)
+                    ? typeElement.GetString() ?? string.Empty
+                    : string.Empty;
+
+                properties.Add(new NotionDatabaseProperty
+                {
+                    Name = property.Name,
+                    Type = type,
+                });
+            }
+
+            return properties;
+        }
+
+        public async Task<List<NotionPageData>> GetDatabaseItemsAsync(NotionConfig config)
         {
             ArgumentNullException.ThrowIfNull(config);
 
@@ -42,20 +94,52 @@ namespace NotionDeadlineFairy.Services
 
             var items = new List<NotionPageData>();
             string? nextCursor = null;
+            var allowedProperties = config.ShowingProperties
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var useShowingPropertiesFilter = allowedProperties.Count > 0;
+            var canSortByEndDateProperty = false;
+
+            if (!string.IsNullOrWhiteSpace(config.EndDatePropertyName))
+            {
+                var properties = await GetDatabasePropertiesAsync(config).ConfigureAwait(false);
+                canSortByEndDateProperty = properties.Any(x =>
+                    string.Equals(x.Name, config.EndDatePropertyName, StringComparison.OrdinalIgnoreCase));
+            }
 
             do
             {
-                var requestBody = nextCursor is null
+                var requestPayload = new Dictionary<string, object>();
+                if (!string.IsNullOrWhiteSpace(nextCursor))
+                {
+                    requestPayload["start_cursor"] = nextCursor;
+                }
+
+                if (canSortByEndDateProperty)
+                {
+                    requestPayload["sorts"] = new[]
+                    {
+                        new Dictionary<string, string>
+                        {
+                            ["property"] = config.EndDatePropertyName,
+                            ["direction"] = "ascending",
+                        }
+                    };
+                }
+
+                var requestBody = requestPayload.Count == 0
                     ? "{}"
-                    : JsonSerializer.Serialize(new Dictionary<string, string> { ["start_cursor"] = nextCursor });
+                    : JsonSerializer.Serialize(requestPayload);
 
                 using var request = new HttpRequestMessage(HttpMethod.Post, $"databases/{databaseId}/query");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", config.ApiToken);
                 request.Headers.Add("Notion-Version", NotionVersion);
                 request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
 
-                using var response = _httpClient.Send(request);
-                var payload = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                using var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+                var payload = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new InvalidOperationException($"Notion API request failed ({(int)response.StatusCode}): {payload}");
@@ -81,6 +165,11 @@ namespace NotionDeadlineFairy.Services
                     var values = new Dictionary<string, NotionField>(StringComparer.OrdinalIgnoreCase);
                     foreach (var property in propertiesElement.EnumerateObject())
                     {
+                        if (useShowingPropertiesFilter && !allowedProperties.Contains(property.Name))
+                        {
+                            continue;
+                        }
+
                         values[property.Name] = ParseField(property.Name, property.Value);
                     }
 

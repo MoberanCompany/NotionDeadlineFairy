@@ -9,7 +9,11 @@ namespace NotionDeadlineFairy.Services
 {
     public class SettingService
     {
-        private static string SettingFilePath => Path.Combine(AppContext.BaseDirectory, "appsetting.json");
+        private const string programDirectoryName = "NotionDeadlineFairy";
+        private static string SettingFilePath => Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            programDirectoryName,
+            "appsetting.json");
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             WriteIndented = true,

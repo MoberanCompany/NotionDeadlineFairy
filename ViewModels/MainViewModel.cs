@@ -1,19 +1,21 @@
-﻿using NotionDeadlineFairy.Commands;
+using NotionDeadlineFairy.Abstractions;
+using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Services;
+using System.Threading.Tasks;
 
 namespace NotionDeadlineFairy.ViewModels
 {
-    public class MainViewModel : BaseViewModel
+    public class MainViewModel : BaseViewModel, IWidget
     {
         private readonly NotionService _notionService;
 
         private int _count = 0;
-        public int Count 
+        public int Count
         {
             get => _count;
             set
             {
-                if(this._count != value)
+                if (this._count != value)
                 {
                     this._count = value;
                     OnPropertyChanged();
@@ -21,6 +23,19 @@ namespace NotionDeadlineFairy.ViewModels
             }
         }
 
+        private bool _isEditMode;
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set
+            {
+                if (_isEditMode != value)
+                {
+                    _isEditMode = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public RelayCommand IncrementCommand { get; }
         public RelayCommand DecrementCommand { get; }
@@ -39,7 +54,30 @@ namespace NotionDeadlineFairy.ViewModels
                 Count--;
             });
 
-            var list = this._notionService.GetAllDatabaseItems();
+            Refresh();
+
+            ServiceLocator.Instance.Register<IWidget>(this);
+        }
+
+        public void Refresh()
+        {
+            // TODO
+        }
+
+        public void SetEditMode(bool enabled)
+        {
+            this.IsEditMode = enabled;
+        }
+
+        public void SetClickThrough(bool enabled)
+        {
+            throw new NotImplementedException();
+            _ = InitializeAsync();
+        }
+
+        private async Task InitializeAsync()
+        {
+            var list = await this._notionService.GetAllDatabaseItemsAsync();
         }
     }
 }
