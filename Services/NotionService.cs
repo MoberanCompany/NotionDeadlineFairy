@@ -30,8 +30,14 @@ namespace NotionDeadlineFairy.Services
                     continue;
                 }
 
-                var items = await _notionApi.GetDatabaseItemsAsync(config);
-                merged.AddRange(items);
+                try {
+                    var items = await _notionApi.GetDatabaseItemsAsync(config);
+                    merged.AddRange(items);
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show($"Error) {config.Name} DB: {ex.Message}");
+                }
             }
 
             return merged

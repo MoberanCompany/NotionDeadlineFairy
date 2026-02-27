@@ -1,6 +1,7 @@
 using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Services;
+using System.Threading.Tasks;
 
 namespace NotionDeadlineFairy.ViewModels
 {
@@ -20,6 +21,50 @@ namespace NotionDeadlineFairy.ViewModels
                     OnPropertyChanged();
                 }
             }
+        }
+
+        private bool _isEditMode;
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set
+            {
+                if (_isEditMode != value)
+                {
+                    _isEditMode = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        private bool _isSettingsVisible = false;
+        public bool IsSettingsVisible
+        {
+            get => _isSettingsVisible;
+            set { _isSettingsVisible = value; OnPropertyChanged(); }
+        }
+        private double _width = 350;
+        private double _height = 500;
+        private double _left = 300;
+        private double _top = 300;
+        public double Width
+        {
+            get => _width;
+            set { _width = value; OnPropertyChanged(); }
+        }
+        public double Height
+        {
+            get => _height;
+            set { _height = value; OnPropertyChanged(); }
+        }
+        public double Left
+        {
+            get => _left;
+            set { _left = value; OnPropertyChanged(); }
+        }
+        public double Top
+        {
+            get => _top;
+            set { _top = value; OnPropertyChanged(); }
         }
 
 
@@ -43,16 +88,51 @@ namespace NotionDeadlineFairy.ViewModels
             Refresh();
 
             ServiceLocator.Instance.Register<IWidget>(this);
+
+            var settings = SettingService.Instance.Current;
+            this.Width = settings.WindowWidth;
+            this.Height = settings.WindowHeight;
+            this.Left = settings.WindowLeft;
+            this.Top = settings.WindowTop;
         }
 
         public void Refresh()
         {
-            _ = RefreshAsync();
+            // TODO: 内靛 备泅
+            // throw new NotImplementedException();
+            _ = InitializeAsync();
         }
 
-        private async Task RefreshAsync()
+        public void SetEditMode(bool enabled)
+        {
+            this.IsEditMode = enabled;
+            if(this.IsEditMode == false)
+            {
+                this.SaveCurrentPosition();
+            }
+        }
+
+        public void SetClickThrough(bool enabled)
+        {
+            // TODO: 内靛 备泅
+            // throw new NotImplementedException();
+        }
+
+        private async Task InitializeAsync()
         {
             var list = await this._notionService.GetAllDatabaseItemsAsync();
+        }
+
+        public void SaveCurrentPosition()
+        {
+            var settings = SettingService.Instance.Current;
+            
+            settings.WindowWidth = this.Width;
+            settings.WindowHeight = this.Height;
+            settings.WindowLeft = this.Left;
+            settings.WindowTop = this.Top;
+
+            SettingService.Instance.Save();
         }
     }
 }

@@ -4,6 +4,7 @@ using NotionDeadlineFairy.Models;
 using NotionDeadlineFairy.Services;
 using NotionDeadlineFairy.Utils;
 using NotionDeadlineFairy.Views;
+using NotionDeadlineFairy.ViewModels;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -23,6 +24,7 @@ namespace NotionDeadlineFairy
         private SettingsWindow? _settingsWindow;
         private MainWindow? _mainWindow;
 
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -40,9 +42,29 @@ namespace NotionDeadlineFairy
 
             _trayService = new TrayService();
             _trayService.Initialize();
+
+
+            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor);
+            ApplyEditMode(setting.IsEditMode);
+            ThemeService.Instance.ThemeChanged += OnThemeChanged;
         }
 
         private void _mainWindow_SourceInitialized(object? sender, EventArgs e)
+        private void OnThemeChanged(string backgroundColorCode, string foregroundColorCode)
+        {
+            SettingService.Instance.Current.BackgroundColor = backgroundColorCode;
+            SettingService.Instance.Current.ForegroundColor = foregroundColorCode;
+            SettingService.Instance.Save();
+            ApplyTheme(backgroundColorCode, foregroundColorCode);
+        }
+
+
+        private void ApplyTheme(string backgroundColorCode, string foregroundColorCode)
+        {
+
+        }
+
+        private void OnWindowModeChanged(WindowMode mode)
         {
             _source = (HwndSource)PresentationSource.FromVisual((Visual)sender);
             _source.AddHook(WndProc);
@@ -96,6 +118,40 @@ namespace NotionDeadlineFairy
 
         #region INavigation
         public void OpenDatabaseEdit()
+        private void OnEditModeChanged(bool enabled)
+        {
+            SettingService.Instance.Current.IsEditMode = enabled;
+            SettingService.Instance.Save();
+            //ApplyEditMode(enabled);
+        }
+
+        private void ApplyEditMode(bool enabled)
+        {
+            if (_mainWindow is null) return;
+            if(_mainWindow.DataContext is MainViewModel vm)
+            {
+                vm.IsEditMode = enabled;
+            }
+        }
+
+        private void OnRefreshRequested()
+        {
+            // TODO: 데이터 새로고침 로직 구현
+        }
+
+        private void OnClickThroughChanged(bool enabled)
+        {
+            SettingService.Instance.Current.IsClickThrough = enabled;
+            SettingService.Instance.Save();
+            ApplyClickThrough(enabled);
+        }
+
+        private void ApplyClickThrough(bool enabled)
+        {
+            _mainWindow?.SetClickThrough(enabled);
+        }
+
+        private void OpenDatabaseEdit()
         {
             if (_settingsWindow is { IsLoaded: true })
             {
