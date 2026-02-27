@@ -9,7 +9,7 @@ namespace NotionDeadlineFairy.Views
 {
     public partial class MainWindow : Window
     {
-        private HwndSource? _hwndSource;
+        
 
         public MainWindow()
         {
@@ -19,18 +19,11 @@ namespace NotionDeadlineFairy.Views
             ServiceLocator.Instance.Register<IWidget>(this);
         }
 
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-            _hwndSource = (HwndSource)PresentationSource.FromVisual(this);
-        }
-
         private void DragHandle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 this.DragMove();
-
 
                 if (this.DataContext is MainViewModel vm)
                 {

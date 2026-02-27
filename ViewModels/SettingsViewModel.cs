@@ -1,3 +1,4 @@
+using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Models;
 using NotionDeadlineFairy.Services;
@@ -145,6 +146,21 @@ namespace NotionDeadlineFairy.ViewModels
                 var current = SettingService.Instance.Current;
                 current.DatabaseConfigs = DatabaseConfigs.Select(x => x.GetConfig()).ToList();
                 SettingService.Instance.Save();
+
+                var views = ServiceLocator.Instance.GetService<IWidget>();
+                if (views == null)
+                    return;
+                foreach (var view in views)
+                {
+                    try
+                    {
+                        view.Refresh();
+                    }
+                    catch (Exception ex)
+                    {
+                        // ignore
+                    }
+                }
             });
 
             EditTextFilterCommand = new RelayCommand(_ =>

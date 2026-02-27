@@ -21,14 +21,26 @@ namespace NotionDeadlineFairy.Services
         /// </summary>
         /// <typeparam name="T">등록할 서비스의 타입 (인터페이스 또는 клас스)</typeparam>
         /// <param name="service">등록할 서비스 인스턴스</param>
-        public void Register<T>(object service)
+        public bool Register<T>(object service)
         {
             if (_services.ContainsKey(typeof(T)) == false)
             {
                 _services[typeof(T)] = new List<object>();
             }
-            
+
+            // check type of service
+            if (service is not T)
+            {
+                return false;
+            }
+            // check if service is already registered
+            if (_services[typeof(T)].Contains(service))
+            {
+                return false;
+            }
+
             _services[typeof(T)].Add(service);
+            return true;
         }
 
         /// <summary>
