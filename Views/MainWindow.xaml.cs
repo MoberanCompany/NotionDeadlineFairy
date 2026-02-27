@@ -58,7 +58,7 @@ namespace NotionDeadlineFairy.Views
         {
             if(this.DataContext is MainViewModel vm)
             {
-                vm.SaveCurrentColor();
+                vm.SaveThemeSettings();
             }
         }
     }

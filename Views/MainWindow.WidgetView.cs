@@ -97,5 +97,11 @@ namespace NotionDeadlineFairy.Views
         public void SetEditMode(bool enabled)
         {
         }
+
+        public void ReDraw()    
+        {
+            // TODO
+            throw new NotImplementedException();
+        }
     }
 }

@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using NotionDeadlineFairy.ViewModels;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace NotionDeadlineFairy
 {
@@ -30,6 +31,8 @@ namespace NotionDeadlineFairy
             _mainWindow.Show();
 
             var setting = SettingService.Instance.Current;
+
+            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor, setting.FontSize, setting.FontFamily);
             ApplyWindowMode(setting.WindowMode);
 
             _trayService = new TrayService();
@@ -42,25 +45,19 @@ namespace NotionDeadlineFairy
                 OnExitRequested = () => Shutdown(),
             });
 
-
-            ApplyTheme(setting.BackgroundColor, setting.ForegroundColor);
             ApplyEditMode(setting.IsEditMode);
-            ThemeService.Instance.ThemeChanged += OnThemeChanged;
+
             PollingService.Instance.Start(setting.PollingIntervalSeconds);
         }
 
-        private void OnThemeChanged(string backgroundColorCode, string foregroundColorCode)
-        {
-            SettingService.Instance.Current.BackgroundColor = backgroundColorCode;
-            SettingService.Instance.Current.ForegroundColor = foregroundColorCode;
-            SettingService.Instance.Save();
-            ApplyTheme(backgroundColorCode, foregroundColorCode);
-        }
-
-
-        private void ApplyTheme(string backgroundColorCode, string foregroundColorCode)
-        {
-
+        private void ApplyTheme(string BackgroundColor, string ForegroundColor, double FontSize, string FontStyle) {
+            System.Windows.Media.FontFamily fontFamily = new System.Windows.Media.FontFamily(FontStyle);
+            if (_mainWindow != null && _mainWindow.DataContext is MainViewModel vm) {
+                vm.FontSize = FontSize;
+                vm.SelectedFontFamily = fontFamily;
+                vm.BackgroundColor = BackgroundColor;
+                vm.ForegroundColor = ForegroundColor;
+            }
         }
 
         private void OnWindowModeChanged(WindowMode mode)

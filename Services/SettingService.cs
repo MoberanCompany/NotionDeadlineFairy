@@ -83,6 +83,9 @@ namespace NotionDeadlineFairy.Services
         public string BackgroundColor { get; set; } = "#FFFFFFFF";
         public string ForegroundColor { get; set; } = "#000000FF";
 
+        public double FontSize { get; set; } = 12;
+        public string FontFamily { get; set; } = "Arial";
+
         public static AppSetting CreateDefault()
         {
             return new AppSetting
