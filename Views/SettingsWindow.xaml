@@ -7,131 +7,160 @@
     xmlns:viewModels="clr-namespace:NotionDeadlineFairy.ViewModels"
     Title="데이터베이스 편집"
     Width="500"
-    Height="450"
+    Height="500"
     d:DataContext="{d:DesignInstance Type=viewModels:SettingsViewModel}"
     ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
-    <Grid Margin="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+	<Window.Resources>
+		<SolidColorBrush x:Key="ChromeBrush" Color="#33000000"/>
+		<Style x:Key="RoundIconButton" TargetType="Button">
+			<Setter Property="Width" Value="24"/>
+			<Setter Property="Height" Value="24"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Background" Value="#33000000"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border x:Name="bd"
+								Background="{TemplateBinding Background}"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}"
+								CornerRadius="12"
+								SnapsToDevicePixels="True">
+							<ContentPresenter HorizontalAlignment="Center"
+											  VerticalAlignment="Center"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="bd" Property="Background" Value="#77000000"/>
+							</Trigger>
+							<Trigger Property="IsPressed" Value="True">
+								<Setter TargetName="bd" Property="Background" Value="#ff000000"/>
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Window.Resources>
+	<Grid Margin="16">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding ="10">
+				<ItemsControl ItemsSource="{Binding DatabaseConfigs}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<Grid>
+								<Border
+									Margin="12"
+									Padding="8"
+									BorderBrush="{StaticResource ChromeBrush}"
+									BorderThickness="1"
+									CornerRadius="4">
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="Auto" />
+										</Grid.ColumnDefinitions>
+										<StackPanel Grid.Column="0">
+											<TextBlock Text="API Token" />
+											<TextBox Margin="0,2,0,6" Text="{Binding ApiToken, UpdateSourceTrigger=PropertyChanged}" />
+											<TextBlock Text="Database URL" />
+											<TextBox Margin="0,2,0,6" Text="{Binding DatabaseUrl, UpdateSourceTrigger=PropertyChanged}" />
+											<TextBlock Text="Date Property Name" />
+											<TextBox Margin="0,2,0,6" Text="{Binding EndDatePropertyName, UpdateSourceTrigger=PropertyChanged}" />
+											<TextBlock Text="Text Filter" />
+											<Grid  Margin="0,2,0,0">
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="*" />
+													<ColumnDefinition Width="40" />
+												</Grid.ColumnDefinitions>
+												<TextBox
+													Grid.Column="0"
+													IsReadOnly="True"
+													Text="{Binding FilterOption, UpdateSourceTrigger=PropertyChanged}" />
+												<Button
+													Grid.Column="1"
+													Command="{Binding DataContext.EditTextFilterCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+													CommandParameter="{Binding .}"
+													Content="Edit" />
+											</Grid>
+											<TextBlock Text="Showing Properties (CSV)" />
+											<TextBox Margin="0,2,0,0" Text="{Binding ShowingProperties, UpdateSourceTrigger=PropertyChanged}" />
 
-        <GroupBox
-            Grid.Row="0"
-            Padding="8"
-            Header="데이터베이스 설정">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+											<TextBlock Text="Test Result" />
+											<Grid Margin="0,2,0,0">
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="*" />
+													<ColumnDefinition Width="40" />
+												</Grid.ColumnDefinitions>
+												<TextBox
+													Grid.Column="0"
+													Text="{Binding ResultMessage, UpdateSourceTrigger=PropertyChanged}" />
+												<Button
+													Grid.Column="1"
+													Command="{Binding DataContext.TestFetchCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+													CommandParameter="{Binding .}"
+													Content="Test" />
+											</Grid>
+										</StackPanel>
+									</Grid>
+								</Border>
+								<Button
+									Style="{StaticResource RoundIconButton}"
+								Width="24"
+								Height="24"
+								HorizontalAlignment="Right"
+								VerticalAlignment="Top"
+								Command="{Binding DataContext.RemoveConfigCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+								CommandParameter="{Binding}"
+								Content="✕" />
+							</Grid>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</ScrollViewer>
+		</Grid>
 
-                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding DatabaseConfigs}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border
-                                    Margin="0,0,0,8"
-                                    Padding="8"
-                                    BorderBrush="Gray"
-                                    BorderThickness="1"
-                                    CornerRadius="4">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="API Token" />
-                                            <TextBox Margin="0,2,0,6" Text="{Binding ApiToken, UpdateSourceTrigger=PropertyChanged}" />
-                                            <TextBlock Text="Database URL" />
-                                            <TextBox Margin="0,2,0,6" Text="{Binding DatabaseUrl, UpdateSourceTrigger=PropertyChanged}" />
-                                            <TextBlock Text="Date Property Name" />
-                                            <TextBox Margin="0,2,0,6" Text="{Binding EndDatePropertyName, UpdateSourceTrigger=PropertyChanged}" />
-                                            <TextBlock Text="Text Filter" />
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBox
-                                                    Grid.Column="0"
-                                                    Margin="0,2,0,0"
-                                                    IsReadOnly="True"
-                                                    Text="{Binding TextFilter, UpdateSourceTrigger=PropertyChanged}" />
-                                                <Button
-                                                    Grid.Column="1"
-                                                    Command="{Binding DataContext.EditTextFilterCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                    CommandParameter="{Binding .}"
-                                                    Content="Edit" />
-                                            </Grid>
-                                            <TextBlock Text="Showing Properties (CSV)" />
-                                            <TextBox Margin="0,2,0,0" Text="{Binding ShowingProperties, UpdateSourceTrigger=PropertyChanged}" />
-
-                                            <TextBlock Text="Test Result" />
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBox
-                                                    Grid.Column="0"
-                                                    Margin="0,2,0,0"
-                                                    Text="{Binding ResultMessage, UpdateSourceTrigger=PropertyChanged}" />
-                                                <Button
-                                                    Grid.Column="1"
-                                                    Command="{Binding DataContext.TestFetchCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                    CommandParameter="{Binding .}"
-                                                    Content="Test" />
-                                            </Grid>
-
-                                        </StackPanel>
-                                        <Button
-                                            Grid.Column="1"
-                                            Width="24"
-                                            Height="24"
-                                            Margin="8,0,0,0"
-                                            VerticalAlignment="Top"
-                                            Command="{Binding DataContext.RemoveConfigCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                            CommandParameter="{Binding}"
-                                            Content="✕" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-
-                <Button
-                    Grid.Row="1"
-                    Margin="0,8,0,0"
-                    Padding="16,4"
-                    HorizontalAlignment="Left"
-                    Command="{Binding AddConfigCommand}"
-                    Content="추가" />
-            </Grid>
-        </GroupBox>
-
-        <StackPanel
-            Grid.Row="1"
-            Margin="0,12,0,0"
+		<Grid Grid.Row="1" Margin="0,12,0,0" Height="30">
+			<Button
+				Grid.Row="1"
+				Width="80"	
+				HorizontalAlignment="Left"
+				Command="{Binding AddConfigCommand}"
+				Content="추가" />
+			<StackPanel
             HorizontalAlignment="Right"
             Orientation="Horizontal">
-            <Button
-                Width="80"
-                Padding="8,4"
-                Command="{Binding SaveCommand}"
-                Content="저장"
-                IsDefault="True" />
-            <Button
-                Width="80"
-                Margin="8,0,0,0"
-                Padding="8,4"
-                Click="OnCloseClick"
-                Content="닫기"
-                IsCancel="True" />
-        </StackPanel>
-    </Grid>
+				<Button
+					Width="80"
+					Command="{Binding SaveCommand}"
+					Content="저장"
+					IsDefault="True" />
+				<Button
+					Width="80"
+					
+					Margin="8,0,0,0"
+					Click="OnCloseClick"
+					Content="닫기"
+					IsCancel="True" />
+			</StackPanel>
+		</Grid>
+	</Grid>
 </Window>

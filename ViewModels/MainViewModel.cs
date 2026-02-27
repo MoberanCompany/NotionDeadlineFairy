@@ -1,17 +1,16 @@
-using System;
+ï»¿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Collections.Generic;
 using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Commands;
-using NotionDeadlineFairy.Services;
-using System.Text.RegularExpressions;
 using NotionDeadlineFairy.Models;
-using Microsoft.VisualBasic.Logging;
+using NotionDeadlineFairy.Services;
 using NotionDeadlineFairy.Utils;
-
-using System.Windows.Media; // FontFamily »ç¿ëÀ» À§ÇØ ÇÊ¿ä
-using System.Collections.Generic;
-using System.Linq;
+using FontFamily = System.Windows.Media.FontFamily;
 
 namespace NotionDeadlineFairy.ViewModels
 {
@@ -39,61 +38,55 @@ namespace NotionDeadlineFairy.ViewModels
                 }
             }
         }
+
         private bool _isSettingsVisible = false;
         public bool IsSettingsVisible
         {
             get => _isSettingsVisible;
             set { _isSettingsVisible = value; OnPropertyChanged(); }
         }
+
         private double _width = 350;
         private double _height = 500;
         private double _left = 300;
         private double _top = 300;
 
-        public double Width
-        {
-            get => _width;
-            set { _width = value; OnPropertyChanged(); }
-        }
-        public double Height
-        {
-            get => _height;
-            set { _height = value; OnPropertyChanged(); }
-        }
-        public double Left
-        {
-            get => _left;
-            set { _left = value; OnPropertyChanged(); }
-        }
-        public double Top
-        {
-            get => _top;
-            set { _top = value; OnPropertyChanged(); }
-        }
-
+        public double Width { get => _width; set { _width = value; OnPropertyChanged(); } }
+        public double Height { get => _height; set { _height = value; OnPropertyChanged(); } }
+        public double Left { get => _left; set { _left = value; OnPropertyChanged(); } }
+        public double Top { get => _top; set { _top = value; OnPropertyChanged(); } }
 
         private string _backgroundColor = "#FFFFFFFF";
         private string _foregroundColor = "#000000FF";
-        public string BackgroundColor { get => _backgroundColor; set { if (_backgroundColor == value) return;  _backgroundColor = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
-        public string ForegroundColor { get => _foregroundColor; set { if (_foregroundColor == value) return;  _foregroundColor = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
+        public string BackgroundColor { get => _backgroundColor; set { if (_backgroundColor == value) return; _backgroundColor = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
+        public string ForegroundColor { get => _foregroundColor; set { if (_foregroundColor == value) return; _foregroundColor = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
+
         private bool _enabledSave = false;
         public bool EnabledSave { get => _enabledSave; set { if (_enabledSave == value) return; _enabledSave = value; OnPropertyChanged(); } }
 
-        public RelayCommand IncrementCommand { get; }
-        public RelayCommand DecrementCommand { get; }
+        public IReadOnlyList<FontFamily> SystemFonts { get; } = Fonts.SystemFontFamilies.OrderBy(f => f.Source).ToList();
 
-        public IReadOnlyList<System.Windows.Media.FontFamily> SystemFonts { get; } = Fonts.SystemFontFamilies.OrderBy(f => f.Source).ToList();
         private double _fontSize = 12;
-        public double FontSize
+        public double FontSize { get => _fontSize; set { _fontSize = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
+
+        private FontFamily _selectedFontFamily = new FontFamily("Segoe UI");
+        public FontFamily SelectedFontFamily { get => _selectedFontFamily; set { _selectedFontFamily = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
+        public DateType[] DateTypeOptions { get; } =
+            Enum.GetValues(typeof(DateType)).Cast<DateType>().ToArray();
+
+        private DateType _dateType = DateType.NONE;
+        public DateType DateType
         {
-            get => _fontSize;
-            set { _fontSize = value; OnPropertyChanged(); EnabledSave = ValidateInput(); }
-        }
-        private System.Windows.Media.FontFamily _selectedFontFamily = new System.Windows.Media.FontFamily("Arial");
-        public System.Windows.Media.FontFamily SelectedFontFamily
-        {
-            get => _selectedFontFamily;
-            set { _selectedFontFamily = value; OnPropertyChanged(); EnabledSave = ValidateInput(); }
+            get => _dateType;
+            set
+            {
+                if (_dateType != value)
+                {
+                    _dateType = value;
+                    OnPropertyChanged();
+                    Refresh();
+                }
+            }
         }
 
         public MainViewModel()
@@ -102,7 +95,7 @@ namespace NotionDeadlineFairy.ViewModels
             TaskList = new ObservableCollection<TaskItemViewModel>();
 
             Refresh();
-            
+
             ServiceLocator.Instance.Register<IWidget>(this);
 
             var settings = SettingService.Instance.Current;
@@ -110,7 +103,14 @@ namespace NotionDeadlineFairy.ViewModels
             this.Height = settings.WindowHeight;
             this.Left = settings.WindowLeft;
             this.Top = settings.WindowTop;
+        }
 
+        //  ë‚ ì§œ í•„í„° ë©”ì„œë“œ
+        private bool PassDate(NotionPageData t, DateTime? upper)
+        {
+            if (t.EndAt == null) return false;
+            if (upper == null) return true;
+            return t.EndAt.Value <= upper.Value;
         }
 
         public void Refresh()
@@ -132,8 +132,11 @@ namespace NotionDeadlineFairy.ViewModels
                     TaskList.Clear();
                     if (rawData != null && rawData.Any())
                     {
-                        var vms = rawData.Select(d => new TaskItemViewModel(d));
-                        foreach(var vm in vms)
+                        var upper = DateUtil.getTime(DateType);
+                        var filtered = rawData.Where(t => PassDate(t, upper)).ToList();
+
+                        var vms = filtered.Select(d => new TaskItemViewModel(d));
+                        foreach (var vm in vms)
                         {
                             TaskList.Add(vm);
                         }
@@ -145,17 +148,11 @@ namespace NotionDeadlineFairy.ViewModels
         public void SetEditMode(bool enabled)
         {
             this.IsEditMode = enabled;
-            if(this.IsEditMode == false)
-            {
+            if (this.IsEditMode == false)
                 this.SaveCurrentPosition();
-            }
         }
 
-        public void SetClickThrough(bool enabled)
-        {
-            // TODO: ÄÚµå ±¸Çö
-            // throw new NotImplementedException();
-        }
+        public void SetClickThrough(bool enabled) { }
 
         private async Task InitializeAsync()
         {
@@ -165,12 +162,10 @@ namespace NotionDeadlineFairy.ViewModels
         public void SaveCurrentPosition()
         {
             var settings = SettingService.Instance.Current;
-            
             settings.WindowWidth = this.Width;
             settings.WindowHeight = this.Height;
             settings.WindowLeft = this.Left;
             settings.WindowTop = this.Top;
-
             SettingService.Instance.Save();
         }
 
@@ -180,52 +175,33 @@ namespace NotionDeadlineFairy.ViewModels
             return Regex.IsMatch(hex, hexPattern);
         }
 
-        private bool ValidateFontSize(double size)
-        {
-            return size >= 8 && size <= 100;
-        }
+        private bool ValidateFontSize(double size) => size >= 8 && size <= 100;
 
-        private bool ValidateFontFamily(System.Windows.Media.FontFamily family)
-        {
-            return family != null && !string.IsNullOrWhiteSpace(family.Source);
-        }
+        private bool ValidateFontFamily(FontFamily family)
+            => family != null && !string.IsNullOrWhiteSpace(family.Source);
 
         private bool ValidateInput()
-        {
-            return ValidateColor(BackgroundColor) && ValidateColor(ForegroundColor) && ValidateFontSize(FontSize) && ValidateFontFamily(SelectedFontFamily);
-        }
-
+            => ValidateColor(BackgroundColor) && ValidateColor(ForegroundColor)
+            && ValidateFontSize(FontSize) && ValidateFontFamily(SelectedFontFamily);
 
         public void SaveThemeSettings()
         {
             var settings = SettingService.Instance.Current;
-
             settings.BackgroundColor = this.BackgroundColor;
             settings.ForegroundColor = this.ForegroundColor;
             settings.FontSize = this.FontSize;
             settings.FontFamily = this.SelectedFontFamily.Source;
-
             SettingService.Instance.Save();
 
             var views = ServiceLocator.Instance.GetService<IWidget>();
-            if (views == null)
-                return;
-            foreach(var view in views)
+            if (views == null) return;
+            foreach (var view in views)
             {
-                try
-                {
-                    view.ReDraw();
-                }
-                catch(Exception ex)
-                {
-                    // ignore
-                }
+                try { view.ReDraw(); }
+                catch (Exception) { }
             }
         }
 
-        public void ReDraw()
-        {
-            // nothing
-        }
+        public void ReDraw() { }
     }
 }

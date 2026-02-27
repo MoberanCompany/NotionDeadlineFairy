@@ -1,4 +1,6 @@
 using NotionDeadlineFairy.Models;
+using NotionDeadlineFairy.Models.Filtering;
+using NotionDeadlineFairy.Services.Filtering;
 using System;
 using System.Collections.Generic;
 using System.Linq;

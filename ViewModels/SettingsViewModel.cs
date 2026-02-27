@@ -1,7 +1,9 @@
 using NotionDeadlineFairy.Abstractions;
 using NotionDeadlineFairy.Commands;
 using NotionDeadlineFairy.Models;
+using NotionDeadlineFairy.Models.Filtering;
 using NotionDeadlineFairy.Services;
+using NotionDeadlineFairy.Views;
 using System.Collections.ObjectModel;
 
 namespace NotionDeadlineFairy.ViewModels
@@ -163,9 +165,15 @@ namespace NotionDeadlineFairy.ViewModels
                 }
             });
 
-            EditTextFilterCommand = new RelayCommand(_ =>
+            EditTextFilterCommand = new RelayCommand(arg =>
             {
-                // TODO ���� ���� �˾�
+                if (arg is not NotionDatabaseSettingItemViewModel item) return;
+
+                var popup = new FilterEditWindow(item.FilterOption);
+                if (popup.ShowDialog() == true)
+                {
+                    item.FilterOption = popup.ResultText;
+                }
             });
         }
     }
