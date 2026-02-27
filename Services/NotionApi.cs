@@ -7,6 +7,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using NotionDeadlineFairy.Models.Filtering;
+using NotionDeadlineFairy.Services.Filtering;
 using System.Threading.Tasks;
 
 namespace NotionDeadlineFairy.Services
@@ -116,6 +118,17 @@ namespace NotionDeadlineFairy.Services
                     {
                         continue;
                     }
+
+                    if (!string.IsNullOrWhiteSpace(config.TextFilter))
+                    {
+                        var filterNode = FilterTextParser.Parse(config.TextFilter);
+                        var rawText = string.Join(" ", propertiesElement.EnumerateObject()
+                            .Select(p => ExtractRawText(p.Value)));
+
+                        if (!RawTextMatchesFilter(filterNode, rawText))
+                            continue; // 필터 안 맞으면 가공도 안 함
+                    }
+
 
                     var values = new Dictionary<string, NotionField>(StringComparer.OrdinalIgnoreCase);
                     foreach (var property in propertiesElement.EnumerateObject())
@@ -512,6 +525,45 @@ namespace NotionDeadlineFairy.Services
             }
 
             return string.Empty;
+        }
+
+        private static string ExtractRawText(JsonElement property)
+        {
+            var sb = new System.Text.StringBuilder();
+            ExtractAllStrings(property, sb);
+            return sb.ToString();
+        }
+
+        private static void ExtractAllStrings(JsonElement element, System.Text.StringBuilder sb)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.String:
+                    sb.Append(' ').Append(element.GetString());
+                    break;
+                case JsonValueKind.Object:
+                    foreach (var prop in element.EnumerateObject())
+                        ExtractAllStrings(prop.Value, sb);
+                    break;
+                case JsonValueKind.Array:
+                    foreach (var item in element.EnumerateArray())
+                        ExtractAllStrings(item, sb);
+                    break;
+            }
+        }
+
+        private static bool RawTextMatchesFilter(FilterNode node, string rawText)
+        {
+            return node switch
+            {
+                FilterGroup g => g.Op == LogicOp.AND
+                    ? g.Children.All(c => RawTextMatchesFilter(c, rawText))
+                    : g.Children.Any(c => RawTextMatchesFilter(c, rawText)),
+                FilterCondition c => c.Op == CondOp.Contains
+                    ? rawText.Contains(c.Value, StringComparison.OrdinalIgnoreCase)
+                    : !rawText.Contains(c.Value, StringComparison.OrdinalIgnoreCase),
+                _ => true
+            };
         }
 
         private sealed class NotionDatabaseMetadata
