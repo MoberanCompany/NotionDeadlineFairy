@@ -3,21 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:conv="clr-namespace:NotionDeadlineFairy.Converters"
              mc:Ignorable="d" d:DesignWidth="300">
 
     <UserControl.Resources>
-        <conv:DeadlineToStyleConverter x:Key="DeadlineStyleConv"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <DropShadowEffect x:Key="CardShadow" BlurRadius="6" ShadowDepth="1" Opacity="0.1" Color="Black"/>
     </UserControl.Resources>
 
-    <Border x:Name="MainBorder" Margin="4,2" CornerRadius="8" Padding="10,8" BorderThickness="1" Effect="{StaticResource CardShadow}">
-        <Border.Background>
-            <SolidColorBrush Color="White" Opacity="0.95"/>
-        </Border.Background>
+    <Border x:Name="MainBorder" Margin="4,2" CornerRadius="8" Padding="10,8" BorderThickness="1" 
+            Effect="{StaticResource CardShadow}"
+            Background="{Binding CardBackground}">
+
         <Border.BorderBrush>
-            <SolidColorBrush Color="#EAEAEA"/>
+            <SolidColorBrush Color="#20000000"/>
         </Border.BorderBrush>
 
         <StackPanel>
@@ -33,24 +31,24 @@
                            Foreground="{Binding DataContext.ForegroundColor, RelativeSource={RelativeSource AncestorType=Window}}"
                            TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,0,0,4"/>
 
-                <Border Grid.Row="1"  CornerRadius="4" Padding="6,4"
+                <Border Grid.Row="1" Background="#15000000" CornerRadius="4" Padding="6,4"
                         Visibility="{Binding HasDeadline, Converter={StaticResource BoolToVis}}">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="⏰" Margin="0,0,6,0" VerticalAlignment="Center" FontSize="11"/>
-
+                        <TextBlock Text="⏰" Margin="0,0,6,0" VerticalAlignment="Center" FontSize="11"
+                                   Foreground="{Binding TimerColor}"/>
                         <TextBlock x:Name="TimerDisplay" FontFamily="Consolas" FontWeight="ExtraBold"
                                    Text="{Binding RemainingTimeText}" 
-                                  />
+                                   Foreground="{Binding TimerColor}"
+                                   FontSize="{Binding TimerFontSize}"/>
                     </StackPanel>
                 </Border>
 
                 <TextBlock Grid.Row="2" Text="{Binding DatabaseTitle}" FontSize="8" 
                            Foreground="{Binding DataContext.ForegroundColor, RelativeSource={RelativeSource AncestorType=Window}}"
-                           Opacity="0.5"
-                           HorizontalAlignment="Right" Margin="0,4,2,0"/>
+                           Opacity="0.5" HorizontalAlignment="Right" Margin="0,4,2,0"/>
             </Grid>
 
-            <Border x:Name="DetailPanel" Visibility="Collapsed" Margin="0,10,0,0" Padding="0,8,0,0" BorderThickness="0,1,0,0" BorderBrush="#EEE">
+            <Border x:Name="DetailPanel" Margin="0,10,0,0" Padding="0,8,0,0" BorderThickness="0,1,0,0" BorderBrush="#20000000">
                 <ItemsControl ItemsSource="{Binding Values}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -60,8 +58,9 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding Key}" FontSize="10" FontWeight="SemiBold"
-                                           Foreground="{Binding DataContext.ForegroundColor, RelativeSource={RelativeSource AncestorType=Window}}" Opacity="0.6"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Value.Value}" FontSize="10" TextAlignment="Right" TextWrapping="Wrap"
+                                           Foreground="{Binding DataContext.ForegroundColor, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                           Opacity="0.6"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Value.Value}" FontSize="10" TextAlignment="Right" TextTrimming="CharacterEllipsis"
                                            Foreground="{Binding DataContext.ForegroundColor, RelativeSource={RelativeSource AncestorType=Window}}"/>
                             </Grid>
                         </DataTemplate>
