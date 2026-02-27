@@ -45,6 +45,7 @@ namespace NotionDeadlineFairy.ViewModels
         private double _height = 500;
         private double _left = 300;
         private double _top = 300;
+
         public double Width
         {
             get => _width;
@@ -66,6 +67,11 @@ namespace NotionDeadlineFairy.ViewModels
             set { _top = value; OnPropertyChanged(); }
         }
 
+
+        private string _backgroundColor = "#FFFFFFFF";
+        private string _foregroundColor = "#000000FF";
+        public string BackgroundColor { get => _backgroundColor; set { if (_backgroundColor == value) return;  _backgroundColor = value; OnPropertyChanged(); } }
+        public string ForegroundColor { get => _foregroundColor; set { if (_foregroundColor == value) return;  _foregroundColor = value; OnPropertyChanged(); } }
 
         public RelayCommand IncrementCommand { get; }
         public RelayCommand DecrementCommand { get; }
