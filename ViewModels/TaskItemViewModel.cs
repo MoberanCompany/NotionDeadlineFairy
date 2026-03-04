@@ -43,11 +43,20 @@ namespace NotionDeadlineFairy.ViewModels
             set { _cardBackground = value; OnPropertyChanged(); }
         }
 
-        private double _timerFontSize = 13.0;
+        private double _timerFontScale = 1.0;
+        public double TimerFontScale
+        {
+            get => _timerFontScale;
+            set { 
+                _timerFontScale = value;
+                OnPropertyChanged(); 
+                OnPropertyChanged(nameof(TimerFontSize)); 
+            }
+        }
+
         public double TimerFontSize
         {
-            get => _timerFontSize;
-            set { _timerFontSize = value; OnPropertyChanged(); }
+            get => SettingService.Instance.Current.FontSize * _timerFontScale;
         }
 
         public TaskItemViewModel(NotionPageData data)
@@ -57,6 +66,11 @@ namespace NotionDeadlineFairy.ViewModels
             {
                 StartTimer();
             }
+        }
+
+        public void ReDraw()
+        {
+            OnPropertyChanged(nameof(TimerFontSize));
         }
 
         private void StartTimer()
@@ -123,22 +137,22 @@ namespace NotionDeadlineFairy.ViewModels
             if (diff.Ticks <= 0) // 기한 지남
             {
                 TimerColor = System.Windows.Media.Brushes.White;
-                TimerFontSize = 13.0;
+                TimerFontScale = 1.0;
             }
             else if (diff.TotalHours < 1) // 1시간 미만
             {
                 TimerColor = System.Windows.Media.Brushes.White;
-                TimerFontSize = 18.0;
+                TimerFontScale = 1.4;
             }
             else if (diff.TotalDays < 1) // 하루 미만
             {
                 TimerColor = System.Windows.Media.Brushes.Orange;
-                TimerFontSize = 13.0;
+                TimerFontScale = 1.0;
             }
             else // 평상시
             {
                 TimerColor = userDefaultForeground;
-                TimerFontSize = 13.0;
+                TimerFontScale = 1.0;
             }
             CardBackground = userDefaultBackground;
 

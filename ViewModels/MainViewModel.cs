@@ -61,6 +61,34 @@ namespace NotionDeadlineFairy.ViewModels
         public string BackgroundColor { get => _backgroundColor; set { if (_backgroundColor == value) return; _backgroundColor = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
         public string ForegroundColor { get => _foregroundColor; set { if (_foregroundColor == value) return; _foregroundColor = value; OnPropertyChanged(); EnabledSave = ValidateInput(); } }
 
+        public SolidColorBrush ForegroundBrush
+        {
+            get => new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(ForegroundColor));
+        }
+
+        public SolidColorBrush BackgroundBrush
+        {
+            get => new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(BackgroundColor));
+        }
+
+        public double DefaultFontSize
+        {
+            get => FontSize;
+        }
+
+        public double DetailFontSize
+        {
+            get => FontSize * 0.8;
+        }
+        public double DatabaseTitleFontSize
+        {
+            get => FontSize * 0.6;
+        }
+        public FontFamily DefaultFontFamily
+        {
+            get => SelectedFontFamily;
+        }
+
         private bool _enabledSave = false;
         public bool EnabledSave { get => _enabledSave; set { if (_enabledSave == value) return; _enabledSave = value; OnPropertyChanged(); } }
 
@@ -193,6 +221,14 @@ namespace NotionDeadlineFairy.ViewModels
             settings.FontFamily = this.SelectedFontFamily.Source;
             SettingService.Instance.Save();
 
+            OnPropertyChanged(nameof(DefaultFontFamily));
+            OnPropertyChanged(nameof(DefaultFontSize));
+            OnPropertyChanged(nameof(DetailFontSize));
+            OnPropertyChanged(nameof(DatabaseTitleFontSize));
+            OnPropertyChanged(nameof(ForegroundBrush));
+            OnPropertyChanged(nameof(BackgroundBrush));
+            OnPropertyChanged(nameof(BackgroundBrush));
+
             var views = ServiceLocator.Instance.GetService<IWidget>();
             if (views == null) return;
             foreach (var view in views)
@@ -202,6 +238,12 @@ namespace NotionDeadlineFairy.ViewModels
             }
         }
 
-        public void ReDraw() { }
+        public void ReDraw() 
+        {
+            foreach (var item in TaskList)
+            {
+                item.ReDraw();
+            }
+        }
     }
 }
