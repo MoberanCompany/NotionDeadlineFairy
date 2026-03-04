@@ -7,7 +7,7 @@ using Forms = System.Windows.Forms;
 
 namespace NotionDeadlineFairy.Services
 {
-    public class TrayService 
+    public class TrayService : ITray
     {
         private DateTime _lastRefreshTime = DateTime.Now;
         private Forms.NotifyIcon? _trayIcon;
@@ -29,6 +29,8 @@ namespace NotionDeadlineFairy.Services
 
         public void Initialize()
         {
+            ServiceLocator.Instance.Register<ITray>(this);
+
             AppSetting setting = SettingService.Instance.Current;
             ContextMenuStrip trayMenu = new Forms.ContextMenuStrip();
 
@@ -277,6 +279,12 @@ namespace NotionDeadlineFairy.Services
 
             var views = ServiceLocator.Instance.GetService<IWidget>();
             views?.ForEach(v => v.SetClickThrough(enabled));
+        }
+
+        public void SetEditMode(bool enabled) {
+            _editModeItem.Checked = enabled;
+            SettingService.Instance.Current.IsEditMode = enabled;
+            SettingService.Instance.Save();
         }
 
         public void Dispose()

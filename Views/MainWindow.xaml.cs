@@ -55,5 +55,11 @@ namespace NotionDeadlineFairy.Views
                 vm.SaveThemeSettings();
             }
         }
+
+        private void CloseEditMode_Click(object sender, MouseButtonEventArgs e)
+        {
+            var views = ServiceLocator.Instance.GetService<ITray>();
+            views?.ForEach(v => v.SetEditMode(false));
+        }
     }
 }

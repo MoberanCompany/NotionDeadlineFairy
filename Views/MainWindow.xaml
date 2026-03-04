@@ -6,41 +6,50 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:NotionDeadlineFairy.ViewModels"
     xmlns:views="clr-namespace:NotionDeadlineFairy.Views"
-    WindowStyle="None"
-    AllowsTransparency="True"
-    Background="Transparent"
-    ShowInTaskbar="False"
-    ShowActivated="False"
     Title="MainWindow"
     Width="{Binding Width, Mode=TwoWay}"
     Height="{Binding Height, Mode=TwoWay}"
-    Top="{Binding Top, Mode=TwoWay}"
-    Left="{Binding Left, Mode=TwoWay}"
     HorizontalAlignment="Right"
     VerticalAlignment="Top"
     d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
+    AllowsTransparency="True"
+    Background="Transparent"
+    Left="{Binding Left, Mode=TwoWay}"
+    ShowActivated="False"
+    ShowInTaskbar="False"
+    Top="{Binding Top, Mode=TwoWay}"
+    WindowStyle="None"
     mc:Ignorable="d">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
         <Style x:Key="ModernTextBox" TargetType="TextBox">
-            <Setter Property="Background" Value="#3D3D3D"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#555555"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="#3D3D3D" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="#555555" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5">
-                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        <Border
+                            x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5">
+                            <ScrollViewer
+                                x:Name="PART_ContentHost"
+                                Focusable="false"
+                                HorizontalScrollBarVisibility="Hidden"
+                                VerticalScrollBarVisibility="Hidden" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FF4A90E2"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FF4A90E2" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -49,24 +58,27 @@
         </Style>
 
         <Style x:Key="ModernButton" TargetType="Button">
-            <Setter Property="Background" Value="#FF4A90E2"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="#FF4A90E2" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="btnBorder" Background="{TemplateBinding Background}" CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border
+                            x:Name="btnBorder"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#FF357ABD"/>
+                                <Setter TargetName="btnBorder" Property="Background" Value="#FF357ABD" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#555555"/>
-                                <Setter Property="Foreground" Value="#888888"/>
+                                <Setter TargetName="btnBorder" Property="Background" Value="#555555" />
+                                <Setter Property="Foreground" Value="#888888" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -77,17 +89,31 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
-                        <Border x:Name="border" Background="#3D3D3D" BorderBrush="#555555" BorderThickness="1" CornerRadius="5">
-                            <Path x:Name="arrow" Data="M0,0 L4,4 L8,0" Fill="#AAAAAA" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Stretch="Fill" Width="8" Height="4"/>
+                        <Border
+                            x:Name="border"
+                            Background="#3D3D3D"
+                            BorderBrush="#555555"
+                            BorderThickness="1"
+                            CornerRadius="5">
+                            <Path
+                                x:Name="arrow"
+                                Width="8"
+                                Height="4"
+                                Margin="0,0,10,0"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Data="M0,0 L4,4 L8,0"
+                                Fill="#AAAAAA"
+                                Stretch="Fill" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#4D4D4D"/>
+                                <Setter TargetName="border" Property="Background" Value="#4D4D4D" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="arrow" Property="RenderTransform">
                                     <Setter.Value>
-                                        <RotateTransform Angle="180" CenterX="4" CenterY="2"/>
+                                        <RotateTransform Angle="180" CenterX="4" CenterY="2" />
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
@@ -98,23 +124,54 @@
         </Style>
 
         <Style x:Key="ModernComboBox" TargetType="ComboBox">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="#3D3D3D"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="#3D3D3D" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="Padding" Value="10,3" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <ToggleButton Style="{StaticResource ComboBoxToggleButton}" Focusable="false" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press"/>
-                            <ContentPresenter Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Margin="10,3,30,3" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                            <Popup Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
-                                <Grid Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border x:Name="DropDownBorder" Background="#2D2D2D" BorderBrush="#444444" BorderThickness="1" CornerRadius="5" Margin="0,2,0,0">
+                            <ToggleButton
+                                ClickMode="Press"
+                                Focusable="false"
+                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                Style="{StaticResource ComboBoxToggleButton}" />
+                            <ContentPresenter
+                                Name="ContentSite"
+                                Margin="10,3,30,3"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Content="{TemplateBinding SelectionBoxItem}"
+                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                IsHitTestVisible="False" />
+                            <Popup
+                                Name="Popup"
+                                AllowsTransparency="True"
+                                Focusable="False"
+                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                Placement="Bottom"
+                                PopupAnimation="Slide">
+                                <Grid
+                                    Name="DropDown"
+                                    MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                    SnapsToDevicePixels="True">
+                                    <Border
+                                        x:Name="DropDownBorder"
+                                        Margin="0,2,0,0"
+                                        Background="#2D2D2D"
+                                        BorderBrush="#444444"
+                                        BorderThickness="1"
+                                        CornerRadius="5">
                                         <Border.Effect>
-                                            <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.3"/>
+                                            <DropShadowEffect
+                                                BlurRadius="10"
+                                                Opacity="0.3"
+                                                ShadowDepth="2" />
                                         </Border.Effect>
                                         <ScrollViewer Margin="2" SnapsToDevicePixels="True">
                                             <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
@@ -129,20 +186,24 @@
         </Style>
 
         <Style TargetType="ComboBoxItem">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="10,8" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBoxItem">
-                        <Border x:Name="gd" Background="Transparent" CornerRadius="3" Margin="2,1">
+                        <Border
+                            x:Name="gd"
+                            Margin="2,1"
+                            Background="Transparent"
+                            CornerRadius="3">
                             <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="gd" Property="Background" Value="#4A90E2"/>
+                                <Setter TargetName="gd" Property="Background" Value="#4A90E2" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="gd" Property="Background" Value="#357ABD"/>
+                                <Setter TargetName="gd" Property="Background" Value="#357ABD" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -151,71 +212,112 @@
         </Style>
     </Window.Resources>
 
-    <Grid >
+    <Grid>
         <Grid Background="#01000000">
-            <ScrollViewer VerticalScrollBarVisibility="Hidden" 
-          HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
                 <ItemsControl ItemsSource="{Binding TaskList}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <views:TaskCardView Margin="5,5,5,8"/>
+                            <views:TaskCardView Margin="5,5,5,8" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Vertical" VerticalAlignment="Top"/>
+                            <StackPanel VerticalAlignment="Top" Orientation="Vertical" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </ScrollViewer>
         </Grid>
 
-        <Grid x:Name="OverlayLayer" Background="#50000000" Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
+        <Grid
+            x:Name="OverlayLayer"
+            Background="#50000000"
+            Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}">
 
-            <Grid x:Name="SettingsModal" Background="#AA000000" Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVisibility}}">
-                <Border Background="#252525" CornerRadius="12" Width="280" Padding="20" VerticalAlignment="Center">
+            <Grid
+                x:Name="SettingsModal"
+                Background="#AA000000"
+                Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVisibility}}">
+                <Border
+                    Width="280"
+                    Padding="20"
+                    VerticalAlignment="Center"
+                    Background="#252525"
+                    CornerRadius="12">
                     <Border.Effect>
-                        <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.5"/>
+                        <DropShadowEffect
+                            BlurRadius="15"
+                            Opacity="0.5"
+                            ShadowDepth="0" />
                     </Border.Effect>
                     <StackPanel>
-                        <TextBlock Text="🎨 스타일 설정" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,0,0,15" HorizontalAlignment="Center"/>
+                        <TextBlock
+                            Margin="0,0,0,15"
+                            HorizontalAlignment="Center"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Foreground="White"
+                            Text="🎨 스타일 설정" />
 
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Margin="0,0,5,0">
-                                <TextBlock Text="배경색(Hex)" Foreground="#AAAAAA" FontSize="10" Margin="2,0,0,3"/>
-                                <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock
+                                    Margin="2,0,0,3"
+                                    FontSize="10"
+                                    Foreground="#AAAAAA"
+                                    Text="배경색(Hex)" />
+                                <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Margin="5,0,0,0">
-                                <TextBlock Text="글자색(Hex)" Foreground="#AAAAAA" FontSize="10" Margin="2,0,0,3"/>
-                                <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock
+                                    Margin="2,0,0,3"
+                                    FontSize="10"
+                                    Foreground="#AAAAAA"
+                                    Text="글자색(Hex)" />
+                                <TextBox Style="{StaticResource ModernTextBox}" Text="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                         </Grid>
 
                         <Grid Margin="0,0,0,20">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="70" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Margin="0,0,5,0">
-                                <TextBlock Text="크기(pt)" Foreground="#AAAAAA" FontSize="10" Margin="2,0,0,3"/>
-                                <TextBox Style="{StaticResource ModernTextBox}" 
-                                         Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged}"
-                                         InputScope="Number"/>
+                                <TextBlock
+                                    Margin="2,0,0,3"
+                                    FontSize="10"
+                                    Foreground="#AAAAAA"
+                                    Text="크기(pt)" />
+                                <TextBox
+                                    InputScope="Number"
+                                    Style="{StaticResource ModernTextBox}"
+                                    Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Margin="5,0,0,0">
-                                <TextBlock Text="폰트 패밀리" Foreground="#AAAAAA" FontSize="10" Margin="2,0,0,3"/>
-                                <ComboBox ItemsSource="{Binding SystemFonts}"
-                                          SelectedItem="{Binding SelectedFontFamily}"
-                                          Style="{StaticResource ModernComboBox}"
-                                          Height="32" 
-                                          MaxDropDownHeight="300">
+                                <TextBlock
+                                    Margin="2,0,0,3"
+                                    FontSize="10"
+                                    Foreground="#AAAAAA"
+                                    Text="폰트 패밀리" />
+                                <ComboBox
+                                    Height="32"
+                                    ItemsSource="{Binding SystemFonts}"
+                                    MaxDropDownHeight="300"
+                                    SelectedItem="{Binding SelectedFontFamily}"
+                                    Style="{StaticResource ModernComboBox}">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Source}" FontFamily="{Binding}" FontSize="13" VerticalAlignment="Center"/>
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontFamily="{Binding}"
+                                                FontSize="13"
+                                                Text="{Binding Source}" />
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
@@ -224,26 +326,86 @@
 
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Button Content="저장" IsEnabled="{Binding EnabledSave}" Style="{StaticResource ModernButton}" Click="SaveColor_Click" Margin="0,0,5,0"/>
-                            <Button Content="닫기" Style="{StaticResource ModernButton}" Background="#444444" Click="CloseSettings_Click" Margin="5,0,0,0" Grid.Column="1"/>
+                            <Button
+                                Margin="0,0,5,0"
+                                Click="SaveColor_Click"
+                                Content="저장"
+                                IsEnabled="{Binding EnabledSave}"
+                                Style="{StaticResource ModernButton}" />
+                            <Button
+                                Grid.Column="1"
+                                Margin="5,0,0,0"
+                                Background="#444444"
+                                Click="CloseSettings_Click"
+                                Content="닫기"
+                                Style="{StaticResource ModernButton}" />
                         </Grid>
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="15" Orientation="Horizontal">
-                <Border Width="40" Height="40" Background="#FF4A90E2" CornerRadius="5" Cursor="SizeAll" MouseLeftButtonDown="DragHandle_MouseLeftButtonDown">
-                    <TextBlock Text="✥" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+            <StackPanel
+                Margin="15"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Orientation="Horizontal">
+                <Border
+                    Width="40"
+                    Height="40"
+                    Background="#FF4A90E2"
+                    CornerRadius="5"
+                    Cursor="SizeAll"
+                    MouseLeftButtonDown="DragHandle_MouseLeftButtonDown">
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="20"
+                        Foreground="White"
+                        Text="✥" />
                 </Border>
-                <Border Width="40" Height="40" Background="#FF2ECC71" CornerRadius="5" Margin="10,0,0,0" Cursor="Hand" MouseLeftButtonDown="ToggleSettings_Click">
+                <Border
+                    Width="40"
+                    Height="40"
+                    Margin="10,0,0,0"
+                    Background="#FF2ECC71"
+                    CornerRadius="5"
+                    Cursor="Hand"
+                    MouseLeftButtonDown="ToggleSettings_Click">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>
-                        <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>
-                        <Ellipse Width="4" Height="4" Fill="White" Margin="0,2"/>
+                        <Ellipse
+                            Width="4"
+                            Height="4"
+                            Margin="0,2"
+                            Fill="White" />
+                        <Ellipse
+                            Width="4"
+                            Height="4"
+                            Margin="0,2"
+                            Fill="White" />
+                        <Ellipse
+                            Width="4"
+                            Height="4"
+                            Margin="0,2"
+                            Fill="White" />
                     </StackPanel>
+                </Border>
+                <Border
+                    Width="40"
+                    Height="40"
+                    Margin="10,0,0,0"
+                    Background="#FFff0000"
+                    CornerRadius="5"
+                    Cursor="Hand"
+                    MouseLeftButtonDown="CloseEditMode_Click">
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="20"
+                        Foreground="White"
+                        Text="X" />
                 </Border>
             </StackPanel>
         </Grid>
