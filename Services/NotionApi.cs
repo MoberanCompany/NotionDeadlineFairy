@@ -436,17 +436,30 @@ namespace NotionDeadlineFairy.Services
                 return null;
             }
 
+            bool hasTime = dateText.Contains("T");
+            DateTime dt;
             if (DateTimeOffset.TryParse(dateText, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dto))
             {
-                return dto.LocalDateTime;
+                dt = dto.LocalDateTime;
+            }
+            else
+            {
+                DateTime.TryParse(dateText, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt);
             }
 
-            if (DateTime.TryParse(dateText, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+            if(dt != DateTime.MinValue)
             {
+                if(!hasTime)
+                {
+                    dt = dt.AddDays(1).AddSeconds(-1);
+                }
                 return dt;
             }
+            else
+            {
+                return null;
+            }
 
-            return null;
         }
 
         private static string ExtractPeople(JsonElement property)
